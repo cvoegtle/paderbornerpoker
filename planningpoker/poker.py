@@ -1,4 +1,4 @@
-import random
+import random, time
 
 MAX_IDENTIFIER = 100000000
 
@@ -43,6 +43,7 @@ class Table:
     cards = []
     played_cards = {}
     card_value_visible = False
+    last_update = time.time_ns()
 
     def __init__(self, admin, description=None, cards=None):
         if description:
@@ -59,19 +60,24 @@ class Table:
 
     def add_user(self, user):
         self.users.add(user)
+        self.mark_update()
 
     def clear(self):
         self.played_cards.clear()
         self.card_value_visible = False
+        self.mark_update()
 
     def show_cards(self):
         self.card_value_visible = True
+        self.mark_update()
 
     def play_card(self, user, card):
         self.played_cards[user] = card
+        self.mark_update()
 
     def remove_card(self, user):
         del self.played_cards[user]
+        self.mark_update()
 
     def all_cards_played(self):
         return len(self.users) == len(self.played_cards)
@@ -85,5 +91,8 @@ class Table:
                 number_of_valid_cards += 1
 
         return None if number_of_valid_cards == 0 else average_value / number_of_valid_cards
+
+    def mark_update(self):
+        self.last_update = time.time_ns()
 
 

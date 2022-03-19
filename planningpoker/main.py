@@ -3,6 +3,7 @@ from flask import Flask, request, render_template, make_response
 from poker import Table, User
 
 COOKIE_TABLE = "POKER_TABLE"
+COOKIE_TABLE_UPDATE = "TABLE_UPDATE"
 COOKIE_USER = "POKER_USER_ID"
 COOKIE_USER_NAME = "POKER_USER_NAME"
 
@@ -54,28 +55,39 @@ def accept_invitation():
 def clear_table():
     table = load_table()
     table.clear()
-    return render_table(table)
+    response = render_table(table)
+    return response
 
 
 @app.route('/show', methods=['POST'])
 def show_cards_on_table():
     table = load_table()
     table.show_cards()
-    return render_table(table)
+    response = render_table(table)
+    return response
 
 
-@app.route('/card/<int:card_key>', methods=['POST'])
-def start(card_key):
+@app.route('/card/<int:card_key>', methods=['GET', 'POST'])
+def play_card(card_key):
     table = load_table()
     user = load_user()
     card = table.cards[card_key]
     table.play_card(user, card)
-    return render_table(table)
+    response = render_table(table)
+    return response
+
+
+@app.route('/check_for_update', methods=['GET', 'POST'])
+def check_for_update():
+    table = load_table()
+    return str(table.last_update)
 
 
 def render_table(table):
     rendered_page = render_template('index.html', table=table)
-    return make_response(rendered_page)
+    response = make_response(rendered_page)
+    set_cookie(response, COOKIE_TABLE_UPDATE, table.last_update)
+    return response
 
 
 def render_create_table():
@@ -134,7 +146,7 @@ def load_user():
 
 
 def set_cookie(response, cookie, value, max_age=None):
-    response.set_cookie(cookie, str(value), samesite='Strict', httponly=True, max_age=max_age)
+    response.set_cookie(cookie, str(value), samesite='Strict', httponly=False, max_age=max_age)
 
 
 # Aufwärmanfragen der App Engine annehmen und positiv beantworten, damit immer eine aktive Instanz vorhanden ist
