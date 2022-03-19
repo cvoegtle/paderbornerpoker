@@ -1,6 +1,8 @@
 import unittest
 import poker
 
+TEST_USER_NAME = "user"
+
 
 class PokerTestCase(unittest.TestCase):
     def test_deck_building(self):
@@ -30,6 +32,17 @@ class PokerTestCase(unittest.TestCase):
         table.play_card(admin, poker.Card(3, 2))
         self.assertTrue(table.all_cards_played())
         self.assertEquals(2, table.average_card_value())
+
+    def test_user_identity(self):
+        user = poker.User(TEST_USER_NAME)
+        card = poker.Card(1, 100)
+        table = poker.Table(user)
+        table.play_card(user, card)
+
+        user2 = poker.User(TEST_USER_NAME)
+        played_card = table.played_cards[user]
+        self.assertEqual(card, played_card)
+
 
 if __name__ == '__main__':
     unittest.main()

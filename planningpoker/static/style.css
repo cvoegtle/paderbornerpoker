@@ -46,3 +46,26 @@ body {
     height: 100%
 }
 
+.input_line {
+    display: flex;
+    flex-direction: row;
+}
+
+.common_label {
+    font-family: 'Open Sans', sans-serif;
+    font-size: larger;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    width: 200px;
+}
+
+.common_input {
+    font-family: 'Open Sans', sans-serif;
+    font-size: larger;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    width: 300px;
+}
+
+
+

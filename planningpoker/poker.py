@@ -1,3 +1,7 @@
+import random
+
+MAX_IDENTIFIER = 100000000
+
 
 class Card:
     def __init__(self, key, value=None, text=None):
@@ -28,20 +32,28 @@ def standard_deck():
 
 class User:
     def __init__(self, name, is_admin=False):
+        self.identifier = random.randrange(0, MAX_IDENTIFIER)
         self.name = name
         self.is_admin = is_admin
 
 
 class Table:
+    identifier = random.randrange(0, MAX_IDENTIFIER)
     users = set()
     cards = []
     played_cards = {}
     card_value_visible = False
 
-    def __init__(self, admin, cards=None):
+    def __init__(self, admin, description=None, cards=None):
+        if description:
+            self.description = description
+        else:
+            self.description = f'Tisch {self.identifier}'
+
         if cards is None:
             cards = standard_deck()
         self.cards = cards
+
         admin.is_admin = True
         self.users.add(admin)
 
