@@ -24,7 +24,28 @@ def show_table():
 def create_table():
     user = create_user(request.form.get('user_name'))
     table = create_new_table(user, request.form.get('table_name'))
+    response = render_invite(table)
+    set_cookie(response, COOKIE_TABLE, table.identifier)
+    set_cookie(response, COOKIE_USER, user.identifier)
+    set_cookie(response, COOKIE_USER_NAME, user.name)
+    return response
+
+
+@app.route('/invitation/<int:table_identifier>', methods=['GET'])
+def receive_invitation(table_identifier):
+    table = load_table_by_id(table_identifier)
+    response = render_invitation(table)
+    set_cookie(response, COOKIE_TABLE, table.identifier)
+    return response
+
+
+@app.route('/accept_invitation', methods=['POST'])
+def accept_invitation():
+    table = load_table()
+    user = create_user(request.form.get('user_name'))
+    table.add_user(user)
     response = render_table(table)
+    set_cookie(response, COOKIE_USER, user.identifier)
     set_cookie(response, COOKIE_USER_NAME, user.name)
     return response
 
@@ -63,6 +84,21 @@ def render_create_table():
     return make_response(rendered_page)
 
 
+def render_invite(table):
+    rendered_page = render_template('invite.html', url=assemble_invitation_url(table.identifier))
+    return make_response(rendered_page)
+
+
+def assemble_invitation_url(identifier):
+    return request.root_url + "invitation/" + str(identifier)
+
+
+def render_invitation(table):
+    user_name = request.cookies.get(COOKIE_USER_NAME)
+    rendered_page = render_template('invitation.html', table=table, user_name="" if user_name is None else user_name)
+    return make_response(rendered_page)
+
+
 def create_user(user_name):
     user = User(user_name)
     users[user.identifier] = user
@@ -76,23 +112,29 @@ def create_new_table(user, table_name):
 
 
 def load_table():
-    table_identifier = request.cookies.get(COOKIE_TABLE)
-    if table_identifier is None:
+    table_cookie = request.cookies.get(COOKIE_TABLE)
+    if table_cookie is None:
         return None
     else:
-        return tables.get(table_identifier)
+        table_identifier = int(table_cookie)
+        return load_table_by_id(table_identifier)
+
+
+def load_table_by_id(table_identifier):
+    return tables.get(table_identifier)
 
 
 def load_user():
-    user_identifier = request.cookies.get(COOKIE_USER)
-    if user_identifier is None:
+    user_cookie = request.cookies.get(COOKIE_USER)
+    if user_cookie is None:
         return None
     else:
+        user_identifier = int(user_cookie)
         return users.get(user_identifier)
 
 
 def set_cookie(response, cookie, value, max_age=None):
-    response.set_cookie(cookie, value, samesite='Strict', httponly=True, max_age=max_age)
+    response.set_cookie(cookie, str(value), samesite='Strict', httponly=True, max_age=max_age)
 
 
 # Aufwärmanfragen der App Engine annehmen und positiv beantworten, damit immer eine aktive Instanz vorhanden ist

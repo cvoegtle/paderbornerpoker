@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Vier gewinnt</title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <script type="text/javascript" language="javascript" src="{{ url_for('static', filename='poker.js') }}"></script>
+
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webapp') }}">
+</head>
+<body>
+<h1>Link an die Teilnehmer schicken</h1>
+<div class="invitation">
+  <input id="url" type="text" value="{{url}}" class="common_input">
+  <input type="button" value="kopieren und los!" onclick="copyToClipboardAndStart()" class="common_input">
+</div>
+</body>
+</html>

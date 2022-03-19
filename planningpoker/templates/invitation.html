@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<head>
+  <title>Planning Poker</title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webapp') }}">
+</head>
+<body>
+<form action="/accept_invitation" method="post">
+  <h1>{{table.description}} beitreten</h1>
+  <div class="input_line">
+    <span class="common_label">Mein Name</span><input name="user_name" value="{{user_name}}" type="text" class="common_input">
+  </div>
+  <input type="submit" class="action_button" value="Tisch beitreten"></input>
+</form>
+</body>
+</html>
