@@ -1,0 +1,48 @@
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-size: larger;
+}
+
+.board {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    padding: 5px;
+}
+
+.board_column {
+    display: flex;
+    flex-direction: column;
+}
+
+.user_row {
+    display: flex;
+    flex-direction: row;
+    height: 33px;
+}
+
+.user_name {
+    padding-top: 4px;
+    width: 150px;
+}
+
+.card_row {
+    display: flex;
+    flex-direction: row;
+    margin-top: 20px;
+}
+
+.card {
+    font-family: 'Open Sans', sans-serif;
+    font-size: larger;
+    width: 55px;
+}
+
+.played_card {
+    border: 3px solid darkblue;
+    padding-top: 1px;
+    width: 55px;
+    text-align: center;
+    height: 100%
+}
+

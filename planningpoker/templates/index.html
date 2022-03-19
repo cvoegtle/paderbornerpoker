@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <title>Planning Poker</title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webapp') }}">
+
+  <script type="text/javascript" language="javascript" src="{{ url_for('static', filename='game.js') }}"></script>
+</head>
+<body onload="backgroundCheck()">
+<form method="post">
+  <div class="board">
+    <div class="board_column">
+      {% for user in table.users %}
+      <div class="user_row">
+      <div class="user_name">
+        <span>{{user.name}}</span>
+      </div>
+        {% if table.played_cards[user] != null %}
+        <div class="played_card">
+          {% if table.card_value_visible %}
+            <span>{{table.played_cards[user].text}}</span>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    <div class="card_row">
+      {% for key, card in table.cards.items() %}
+      <input type="submit"
+             formaction="/card/{{key}}"
+             class="card"
+             value="{{card.text}}">
+      {% endfor %}
+    </div>
+  </div>
+  <input type="submit" formaction="/show" class="action_button" value="anzeigen"></input>
+  <input type="submit" formaction="/clear" class="action_button" value="noch mal"></input>
+  <input type="submit" formaction="/" class="action_button" value="aktualisieren"></input>
+</form>
+</body>
+</html>
