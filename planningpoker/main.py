@@ -1,7 +1,6 @@
 from flask import Flask, request, render_template, make_response
 
-from poker import Table, User
-from persistence import retrieve_user, retrieve_table, create_user, create_table
+from persistence import retrieve_user, retrieve_table, create_user, create_table, store_table
 
 COOKIE_TABLE = "POKER_TABLE"
 COOKIE_TABLE_UPDATE = "TABLE_UPDATE"
@@ -49,6 +48,7 @@ def accept_invitation():
     table = load_table()
     user = create_user(request.form.get('user_name'))
     table.add_user(user)
+    store_table(table)
     response = render_table(table, user)
     set_cookie(response, COOKIE_USER, user.identifier)
     set_cookie(response, COOKIE_USER_NAME, user.name)
@@ -59,6 +59,7 @@ def accept_invitation():
 def clear_table():
     table = load_table()
     table.clear()
+    store_table(table)
     response = render_table(table, load_user())
     return response
 
@@ -67,6 +68,7 @@ def clear_table():
 def show_cards_on_table():
     table = load_table()
     table.show_cards()
+    store_table(table)
     response = render_table(table, load_user())
     return response
 
@@ -77,6 +79,7 @@ def play_card(card_key):
     user = load_user()
     card = table.cards[card_key]
     table.play_card(user, card)
+    store_table(table)
     response = render_table(table, user)
     return response
 
@@ -112,10 +115,11 @@ def render_invitation(table):
 
 def load_table():
     table_cookie = request.cookies.get(COOKIE_TABLE)
+    print(f'Table Cookie: {table_cookie}')
     if table_cookie is None:
         return None
     else:
-        table_identifier = int(table_cookie)
+        table_identifier = table_cookie
         return retrieve_table(table_identifier)
 
 
