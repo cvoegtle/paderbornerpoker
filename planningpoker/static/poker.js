@@ -4,6 +4,23 @@ function copyToClipboardAndStart() {
   location.replace("/");
 }
 
+function updateCreateButtonStatus() {
+  let createButton = document.getElementById(name="create_button");
+  let disabled =  !containsText("table_name") || !containsText("user_name");
+  createButton.disabled = disabled;
+}
+
+function updateJoinButtonStatus() {
+  let joinButton = document.getElementById(name = "join_button");
+  let disabled = !containsText("user_name");
+  joinButton.disabled = disabled;
+}
+
+function containsText(elementName) {
+  let element = document.getElementById(elementName);
+  return element.value != null && element.value.trim().length > 0;
+}
+
 class TableObserver {
   pollInterval = 5000;
   intervalId = null;

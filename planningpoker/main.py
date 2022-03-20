@@ -12,6 +12,8 @@ app = Flask(__name__)
 users = dict()
 tables = dict()
 
+# Einstiegspunkt. Tisch anzeigen falls vorhanden,
+# sonst eine Seite anzeigen um den Tisch anzulegen
 @app.route('/', methods=['GET', 'POST'])
 def show_table():
     table = load_table()
@@ -21,6 +23,8 @@ def show_table():
         return render_table(table, load_user())
 
 
+# Adminbenutzer und Tisch anlegen.
+# Cookies setzen, damit wir sie wiederfinden
 @app.route('/create_table', methods=['POST'])
 def create_table():
     user = create_user(request.form.get('user_name'), is_admin=True)
@@ -32,6 +36,7 @@ def create_table():
     return response
 
 
+# Einladungslink rendern, über den man dem Tisch beitreten kann
 @app.route('/invitation/<int:table_identifier>', methods=['GET'])
 def receive_invitation(table_identifier):
     table = load_table_by_id(table_identifier)
@@ -40,6 +45,7 @@ def receive_invitation(table_identifier):
     return response
 
 
+# Einladung annehmen und dem Tisch beitreten
 @app.route('/accept_invitation', methods=['POST'])
 def accept_invitation():
     table = load_table()

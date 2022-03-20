@@ -5,17 +5,19 @@
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet">
   <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="manifest" href="{{ url_for('static', filename='manifest.webapp') }}">
+
+  <script type="text/javascript" src="{{ url_for('static', filename='poker.js') }}"></script>
 </head>
 <body>
 <form action="/create_table" method="post">
   <h1>Neuen Tisch anlegen</h1>
   <div class="input_line">
-    <span class="common_label">Tisch benennen</span><input name="table_name" type="text" class="common_input">
+    <span class="common_label">Tisch benennen</span><input id="table_name" name="table_name" type="text" class="common_input" onkeyup="updateCreateButtonStatus()">
   </div>
   <div class="input_line">
-    <span class="common_label">Mein Name</span><input name="user_name" value="{{user_name}}" type="text" class="common_input">
+    <span class="common_label">Mein Name</span><input id="user_name" name="user_name" value="{{user_name}}" type="text" class="common_input" onkeyup="updateCreateButtonStatus()">
   </div>
-  <input type="submit" class="action_button" value="Tisch anlegen"></input>
+  <input id="create_button" type="submit" class="action_button" value="Tisch anlegen" disabled></input>
 </form>
 </body>
 </html>
