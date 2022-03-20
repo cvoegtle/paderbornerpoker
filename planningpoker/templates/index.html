@@ -36,7 +36,7 @@
       {% endfor %}
     </div>
   </div>
-  <input type="submit" formaction="/show" class="action_button" value="aufdecken"></input>
+  <input type="submit" formaction="/show" class="action_button" value="aufdecken" {% if show_action_disabled %}disabled{% endif %}></input>
   <input type="submit" formaction="/clear" class="action_button" value="abräumen"></input>
   <input type="submit" formaction="/" class="action_button" value="aktualisieren"></input>
 </form>

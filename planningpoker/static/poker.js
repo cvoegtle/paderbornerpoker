@@ -47,7 +47,7 @@ class TableObserver {
       errorCallback();
     }
 
-    ajaxRequest.open("get", "/check_for_update", true);
+    ajaxRequest.open("get", "/check_for_updates", true);
     ajaxRequest.send();
   }
 }

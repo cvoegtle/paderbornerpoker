@@ -18,12 +18,12 @@ def show_table():
     if table is None:
         return render_create_table()
     else:
-        return render_table(table)
+        return render_table(table, load_user())
 
 
 @app.route('/create_table', methods=['POST'])
 def create_table():
-    user = create_user(request.form.get('user_name'))
+    user = create_user(request.form.get('user_name'), is_admin=True)
     table = create_new_table(user, request.form.get('table_name'))
     response = render_invite(table)
     set_cookie(response, COOKIE_TABLE, table.identifier)
@@ -45,7 +45,7 @@ def accept_invitation():
     table = load_table()
     user = create_user(request.form.get('user_name'))
     table.add_user(user)
-    response = render_table(table)
+    response = render_table(table, user)
     set_cookie(response, COOKIE_USER, user.identifier)
     set_cookie(response, COOKIE_USER_NAME, user.name)
     return response
@@ -55,7 +55,7 @@ def accept_invitation():
 def clear_table():
     table = load_table()
     table.clear()
-    response = render_table(table)
+    response = render_table(table, load_user())
     return response
 
 
@@ -63,7 +63,7 @@ def clear_table():
 def show_cards_on_table():
     table = load_table()
     table.show_cards()
-    response = render_table(table)
+    response = render_table(table, load_user())
     return response
 
 
@@ -73,18 +73,13 @@ def play_card(card_key):
     user = load_user()
     card = table.cards[card_key]
     table.play_card(user, card)
-    response = render_table(table)
+    response = render_table(table, user)
     return response
 
 
-@app.route('/check_for_update', methods=['GET', 'POST'])
-def check_for_update():
-    table = load_table()
-    return str(table.last_update)
-
-
-def render_table(table):
-    rendered_page = render_template('index.html', table=table)
+def render_table(table, user):
+    show_disabled = not table.all_cards_played() and not user.is_admin
+    rendered_page = render_template('index.html', table=table, show_action_disabled=show_disabled)
     response = make_response(rendered_page)
     set_cookie(response, COOKIE_TABLE_UPDATE, table.last_update)
     return response
@@ -111,8 +106,8 @@ def render_invitation(table):
     return make_response(rendered_page)
 
 
-def create_user(user_name):
-    user = User(user_name)
+def create_user(user_name, is_admin=False):
+    user = User(user_name, is_admin=is_admin)
     users[user.identifier] = user
     return user
 
@@ -147,6 +142,13 @@ def load_user():
 
 def set_cookie(response, cookie, value, max_age=None):
     response.set_cookie(cookie, str(value), samesite='Strict', httponly=False, max_age=max_age)
+
+
+# AJAX Anfrage, ob sich etwas am Tisch geändert hat
+@app.route('/check_for_updates', methods=['GET', 'POST'])
+def check_for_update():
+    table = load_table()
+    return str(table.last_update)
 
 
 # Aufwärmanfragen der App Engine annehmen und positiv beantworten, damit immer eine aktive Instanz vorhanden ist
