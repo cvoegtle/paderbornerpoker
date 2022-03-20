@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, make_response
 
 from poker import Table, User
+from persistence import retrieve_user, retrieve_table, create_user, create_table
 
 COOKIE_TABLE = "POKER_TABLE"
 COOKIE_TABLE_UPDATE = "TABLE_UPDATE"
@@ -8,9 +9,6 @@ COOKIE_USER = "POKER_USER_ID"
 COOKIE_USER_NAME = "POKER_USER_NAME"
 
 app = Flask(__name__)
-
-users = dict()
-tables = dict()
 
 # Einstiegspunkt. Tisch anzeigen falls vorhanden,
 # sonst eine Seite anzeigen um den Tisch anzulegen
@@ -26,9 +24,9 @@ def show_table():
 # Adminbenutzer und Tisch anlegen.
 # Cookies setzen, damit wir sie wiederfinden
 @app.route('/create_table', methods=['POST'])
-def create_table():
+def do_create_table():
     user = create_user(request.form.get('user_name'), is_admin=True)
-    table = create_new_table(user, request.form.get('table_name'))
+    table = create_table(user, request.form.get('table_name'))
     response = render_invite(table)
     set_cookie(response, COOKIE_TABLE, table.identifier)
     set_cookie(response, COOKIE_USER, user.identifier)
@@ -39,7 +37,7 @@ def create_table():
 # Einladungslink rendern, über den man dem Tisch beitreten kann
 @app.route('/invitation/<int:table_identifier>', methods=['GET'])
 def receive_invitation(table_identifier):
-    table = load_table_by_id(table_identifier)
+    table = retrieve_table(table_identifier)
     response = render_invitation(table)
     set_cookie(response, COOKIE_TABLE, table.identifier)
     return response
@@ -112,29 +110,13 @@ def render_invitation(table):
     return make_response(rendered_page)
 
 
-def create_user(user_name, is_admin=False):
-    user = User(user_name, is_admin=is_admin)
-    users[user.identifier] = user
-    return user
-
-
-def create_new_table(user, table_name):
-    table = Table(user, table_name)
-    tables[table.identifier] = table
-    return table
-
-
 def load_table():
     table_cookie = request.cookies.get(COOKIE_TABLE)
     if table_cookie is None:
         return None
     else:
         table_identifier = int(table_cookie)
-        return load_table_by_id(table_identifier)
-
-
-def load_table_by_id(table_identifier):
-    return tables.get(table_identifier)
+        return retrieve_table(table_identifier)
 
 
 def load_user():
@@ -143,7 +125,7 @@ def load_user():
         return None
     else:
         user_identifier = int(user_cookie)
-        return users.get(user_identifier)
+        return retrieve_user(user_identifier)
 
 
 def set_cookie(response, cookie, value, max_age=None):
