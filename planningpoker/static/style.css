@@ -50,6 +50,11 @@ body {
     border-radius: 15%;
 }
 
+.closed_card {
+    background: darkviolet;
+    color: white;
+}
+
 .input_line {
     display: flex;
     flex-direction: row;
