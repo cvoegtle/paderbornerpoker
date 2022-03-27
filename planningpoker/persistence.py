@@ -118,6 +118,7 @@ class TableEncoder(json.JSONEncoder):
         if isinstance(o, Table):
             dictionary = o.__dict__
             dictionary['users'] = o.users
+            dictionary['played_cards'] = o.played_cards
             return dictionary
         if isinstance(o, set):
             return list(o)
