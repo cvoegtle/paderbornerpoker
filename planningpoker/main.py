@@ -1,3 +1,5 @@
+import time
+
 from flask import Flask, request, render_template, make_response, redirect
 
 from persistence import retrieve_user, retrieve_table, create_user, create_table, store_table
@@ -9,18 +11,23 @@ COOKIE_USER_NAME = "POKER_USER_NAME"
 
 app = Flask(__name__)
 
+
 # Einstiegspunkt. Tisch anzeigen falls vorhanden,
 # sonst eine Seite anzeigen um den Tisch anzulegen
 @app.route('/', methods=['GET'])
 def start_new_table():
-    return render_create_table()
+    response = render_create_table()
+    clear_cookie(response, COOKIE_TABLE)
+    clear_cookie(response, COOKIE_TABLE_UPDATE)
+    clear_cookie(response, COOKIE_USER)
+    return response
 
 
 @app.route('/table', methods=['GET', 'POST'])
 def show_table():
     table = load_table()
     if table is None:
-        return redirect('/')
+        return unique_redirect('/')
     else:
         return render_table(table, load_user())
 
@@ -54,7 +61,7 @@ def accept_invitation():
     user = create_user(request.form.get('user_name'))
     table.add_user(user)
     store_table(table)
-    response = redirect('/table')
+    response = unique_redirect('/table')
     set_cookie(response, COOKIE_USER, user.identifier)
     set_cookie(response, COOKIE_USER_NAME, user.name)
     return response
@@ -65,7 +72,7 @@ def clear_table():
     table = load_table()
     table.clear()
     store_table(table)
-    response = render_table(table, load_user())
+    response = unique_redirect('/table')
     return response
 
 
@@ -74,7 +81,7 @@ def show_cards_on_table():
     table = load_table()
     table.show_cards()
     store_table(table)
-    response = render_table(table, load_user())
+    response = unique_redirect('/table')
     return response
 
 
@@ -85,7 +92,7 @@ def play_card(card_key):
     card = table.cards[card_key]
     table.play_card(user, card)
     store_table(table)
-    response = render_table(table, user)
+    response = unique_redirect('/table')
     return response
 
 
@@ -118,6 +125,10 @@ def render_invitation(table):
     return make_response(rendered_page)
 
 
+def unique_redirect(url):
+    return redirect(f'{url}?unique={time.time_ns()}')
+
+
 def load_table():
     table_cookie = request.cookies.get(COOKIE_TABLE)
     print(f'Table Cookie: {table_cookie}')
@@ -139,6 +150,10 @@ def load_user():
 
 def set_cookie(response, cookie, value, max_age=None):
     response.set_cookie(cookie, str(value), samesite='Strict', httponly=False, max_age=max_age)
+
+
+def clear_cookie(response, cookie):
+    response.set_cookie(cookie, "", samesite='Strict', httponly=False, max_age=0)
 
 
 # AJAX Anfrage, ob sich etwas am Tisch geändert hat

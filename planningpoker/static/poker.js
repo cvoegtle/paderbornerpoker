@@ -1,7 +1,7 @@
 function copyToClipboardAndStart() {
   let url_field = document.getElementById("url");
   navigator.clipboard.writeText(url_field.value);
-  location.replace("/table");
+  location.replace(uniqueUrl("/table"));
 }
 
 function updateCreateButtonStatus() {
@@ -31,9 +31,10 @@ class TableObserver {
   }
 
   processResponse(responseText) {
-    let lastUpdate = getCookie("TABLE_UPDATE")
+    let lastUpdate = getCookie("TABLE_UPDATE");
     if (responseText != lastUpdate) {
-      location.replace("/table");
+      this.pollCount = 0;
+      location.replace(uniqueUrl("/table"));
     }
     this.pollCount++;
     if (this.pollCount >= 60) {
@@ -64,9 +65,13 @@ class TableObserver {
       errorCallback();
     }
 
-    ajaxRequest.open("get", "/check_for_updates", true);
+    ajaxRequest.open("get", uniqueUrl("/check_for_updates"), true);
     ajaxRequest.send();
   }
+}
+
+function uniqueUrl(url) {
+  return `${url}?unique=${new Date().getTime()}`;
 }
 
 gameObserver = new TableObserver();

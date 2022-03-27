@@ -15,15 +15,22 @@ class JSONSerialisationTest(unittest.TestCase):
         self.assertEqual(user.identifier, user2.identifier)
 
     def test_table_serialisation(self):
-        user = User("User Name", is_admin=True)
-        table = Table(user, description="Paderborner Tisch")
-        table.play_card(user, Card(2, value=3))
+        admin = User("Admin Name", is_admin=True)
+        table = Table(admin, description="Paderborner Tisch")
+        user = User("User name")
+        table.add_user(user)
+        table.play_card(admin, Card(2, value=3))
+        table.show_cards()
         json_table = json.dumps(table, cls=TableEncoder)
         table2 = json.JSONDecoder(object_hook=decode_json_table).decode(json_table)
         self.assertEqual(table.identifier, table2.identifier)
-        card = table2.card_played_by(user)
+        self.assertEqual(table.description, table2.description)
+        card = table2.card_played_by(admin)
         self.assertIsNotNone(card)
-        self.assertEquals(1, len(table2.users))
+        self.assertEquals(2, len(table2.users))
+
+        self.assertTrue(table2.card_value_visible)
+        self.assertEqual(table.last_update, table2.last_update)
 
 
 

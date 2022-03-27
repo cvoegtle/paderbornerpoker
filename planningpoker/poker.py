@@ -36,6 +36,8 @@ class User:
         self.name = name
         self.is_admin = is_admin
 
+    def key(self):
+        return ("A" if self.is_admin else "Z") + self.name
 
 class Table:
     identifier = random.randrange(0, MAX_IDENTIFIER)
@@ -80,7 +82,10 @@ class Table:
         return self.played_cards.get(user.identifier)
 
     def all_cards_played(self):
-        return len(self.users) == len(self.played_cards)
+        return len(self.users) <= len(self.played_cards)
+
+    def sorted_users(self):
+        return sorted(self.users, key=User.key)
 
     def average_card_value(self):
         average_value = 0
