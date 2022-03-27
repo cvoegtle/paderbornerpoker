@@ -73,12 +73,11 @@ class Table:
         self.mark_update()
 
     def play_card(self, user, card):
-        self.played_cards[user] = card
+        self.played_cards[user.identifier] = card
         self.mark_update()
 
-    def remove_card(self, user):
-        del self.played_cards[user]
-        self.mark_update()
+    def card_played_by(self, user):
+        return self.played_cards.get(user.identifier)
 
     def all_cards_played(self):
         return len(self.users) == len(self.played_cards)

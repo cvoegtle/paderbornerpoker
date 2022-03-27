@@ -21,7 +21,7 @@ class JSONSerialisationTest(unittest.TestCase):
         json_table = json.dumps(table, cls=TableEncoder)
         table2 = json.JSONDecoder(object_hook=decode_json_table).decode(json_table)
         self.assertEqual(table.identifier, table2.identifier)
-        card = table2.played_cards[user]
+        card = table2.card_played_by(user)
         self.assertIsNotNone(card)
         self.assertEquals(1, len(table2.users))
 

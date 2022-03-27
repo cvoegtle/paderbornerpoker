@@ -91,7 +91,7 @@ def play_card(card_key):
 
 def render_table(table, user):
     show_disabled = not table.all_cards_played() and not user.is_admin
-    rendered_page = render_template('index.html', table=table, my_user=user, show_action_disabled=show_disabled)
+    rendered_page = render_template('table.html', table=table, my_user=user, show_action_disabled=show_disabled)
     response = make_response(rendered_page)
     set_cookie(response, COOKIE_TABLE_UPDATE, table.last_update)
     return response

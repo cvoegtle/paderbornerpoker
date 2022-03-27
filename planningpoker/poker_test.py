@@ -40,7 +40,7 @@ class PokerTestCase(unittest.TestCase):
         table.play_card(user, card)
 
         user2 = poker.User(TEST_USER_NAME)
-        played_card = table.played_cards[user]
+        played_card = table.card_played_by(user)
         self.assertEqual(card, played_card)
 
 

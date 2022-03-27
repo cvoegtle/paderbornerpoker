@@ -17,10 +17,10 @@
       <div class="user_name">
         <span>{{user.name}}</span>
       </div>
-        {% if table.played_cards[user] != null %}
+        {% if table.card_played_by(user) != None %}
         <div class="played_card {% if not table.card_value_visible %}closed_card{% endif %}">
           {% if table.card_value_visible or user == my_user %}
-            <span>{{table.played_cards[user].text}}</span>
+            <span>{{table.card_played_by(user).text}}</span>
           {% endif %}
         </div>
         {% endif %}
