@@ -28,6 +28,7 @@
       </div>
       {% endfor %}
     </div>
+    {% if table.is_user_at_table(my_user) %}
     <div class="card_row">
       {% for key, card in table.cards.items() %}
       <input type="submit"
@@ -36,9 +37,10 @@
              value="{{card.text}}" {% if table.card_value_visible %}disabled{% endif %}>
       {% endfor %}
     </div>
+    {% endif %}
   </div>
   <input type="submit" formaction="/show" class="action_button" value="aufdecken" {% if show_action_disabled %}disabled{% endif %}></input>
-  <input type="submit" formaction="/clear" class="action_button" value="abräumen"></input>
+  <input type="submit" formaction="/clear" class="action_button" value="abräumen" {% if not table.is_user_at_table(my_user) %}disabled{% endif %}></input>
   <input type="submit" formaction="/table" class="action_button" value="aktualisieren"></input>
 </form>
 </body>

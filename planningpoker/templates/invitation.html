@@ -9,12 +9,13 @@
   <script type="text/javascript" src="{{ url_for('static', filename='poker.js') }}"></script>
 </head>
 <body>
-<form action="/accept_invitation" method="post">
+<form  method="post">
   <h1>{{table.description}} beitreten</h1>
   <div class="input_line">
     <span class="common_label">Mein Name</span><input id="user_name" name="user_name" value="{{user_name}}" type="text" class="common_input" onkeyup="updateJoinButtonStatus()">
   </div>
-  <input id="join_button" type="submit" class="action_button" value="Tisch beitreten" disabled></input>
+  <input formaction="/accept_invitation" id="join_button" type="submit" class="action_button" value="Tisch beitreten" disabled></input>
+  <input formaction="/watch_table" id="watch_button" type="submit" class="action_button" value="Nur zuschauen"></input>
 </form>
 </body>
 </html>

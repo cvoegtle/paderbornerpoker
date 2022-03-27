@@ -67,6 +67,16 @@ def accept_invitation():
     return response
 
 
+# Tisch beitreten, aber nur zuschauen
+@app.route('/watch_table', methods=['POST'])
+def watch_table():
+    user = create_user(request.form.get('user_name'))
+    response = unique_redirect('/table')
+    set_cookie(response, COOKIE_USER, user.identifier)
+    set_cookie(response, COOKIE_USER_NAME, user.name)
+    return response
+
+
 @app.route('/clear', methods=['POST'])
 def clear_table():
     table = load_table()

@@ -39,6 +39,7 @@ class User:
     def key(self):
         return ("A" if self.is_admin else "Z") + self.name
 
+
 class Table:
     identifier = random.randrange(0, MAX_IDENTIFIER)
     users = set()
@@ -86,6 +87,12 @@ class Table:
 
     def sorted_users(self):
         return sorted(self.users, key=User.key)
+
+    def is_user_at_table(self, lookup):
+        for user in self.users:
+            if user.identifier == lookup.identifier:
+                return True
+        return False
 
     def average_card_value(self):
         average_value = 0
