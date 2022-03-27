@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, make_response
+from flask import Flask, request, render_template, make_response, redirect
 
 from persistence import retrieve_user, retrieve_table, create_user, create_table, store_table
 
@@ -11,11 +11,16 @@ app = Flask(__name__)
 
 # Einstiegspunkt. Tisch anzeigen falls vorhanden,
 # sonst eine Seite anzeigen um den Tisch anzulegen
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
+def start_new_table():
+    return render_create_table()
+
+
+@app.route('/table', methods=['GET', 'POST'])
 def show_table():
     table = load_table()
     if table is None:
-        return render_create_table()
+        return redirect('/')
     else:
         return render_table(table, load_user())
 
@@ -49,7 +54,7 @@ def accept_invitation():
     user = create_user(request.form.get('user_name'))
     table.add_user(user)
     store_table(table)
-    response = render_table(table, user)
+    response = redirect('/table')
     set_cookie(response, COOKIE_USER, user.identifier)
     set_cookie(response, COOKIE_USER_NAME, user.name)
     return response

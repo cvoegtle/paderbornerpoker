@@ -1,7 +1,7 @@
 function copyToClipboardAndStart() {
   let url_field = document.getElementById("url");
   navigator.clipboard.writeText(url_field.value);
-  location.replace("/");
+  location.replace("/table");
 }
 
 function updateCreateButtonStatus() {
@@ -33,7 +33,7 @@ class TableObserver {
   processResponse(responseText) {
     let lastUpdate = getCookie("TABLE_UPDATE")
     if (responseText != lastUpdate) {
-      location.replace("/");
+      location.replace("/table");
     }
     this.pollCount++;
     if (this.pollCount >= 60) {
