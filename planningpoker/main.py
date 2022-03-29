@@ -2,7 +2,8 @@ import time
 
 from flask import Flask, request, render_template, make_response, redirect
 
-from persistence import retrieve_user, retrieve_table, create_user, create_table, store_table
+from persistence import retrieve_user, retrieve_table, create_user, create_table, store_table, update_table_add_user, update_table_clear, \
+    update_table_show_cards, update_table_play_card
 
 COOKIE_TABLE = "POKER_TABLE"
 COOKIE_TABLE_UPDATE = "TABLE_UPDATE"
@@ -29,6 +30,7 @@ def show_table():
     if table is None:
         return unique_redirect('/')
     else:
+        print(table)
         return render_table(table, load_user())
 
 
@@ -57,10 +59,8 @@ def receive_invitation(table_identifier):
 # Einladung annehmen und dem Tisch beitreten
 @app.route('/accept_invitation', methods=['POST'])
 def accept_invitation():
-    table = load_table()
     user = create_user(request.form.get('user_name'))
-    table.add_user(user)
-    store_table(table)
+    update_table_add_user(extract_table_identifier(), user)
     response = unique_redirect('/table')
     set_cookie(response, COOKIE_USER, user.identifier)
     set_cookie(response, COOKIE_USER_NAME, user.name)
@@ -79,29 +79,21 @@ def watch_table():
 
 @app.route('/clear', methods=['POST'])
 def clear_table():
-    table = load_table()
-    table.clear()
-    store_table(table)
+    update_table_clear(extract_table_identifier())
     response = unique_redirect('/table')
     return response
 
 
 @app.route('/show', methods=['POST'])
 def show_cards_on_table():
-    table = load_table()
-    table.show_cards()
-    store_table(table)
+    update_table_show_cards(extract_table_identifier())
     response = unique_redirect('/table')
     return response
 
 
 @app.route('/card/<int:card_key>', methods=['GET', 'POST'])
 def play_card(card_key):
-    table = load_table()
-    user = load_user()
-    card = table.cards[card_key]
-    table.play_card(user, card)
-    store_table(table)
+    update_table_play_card(extract_table_identifier(), load_user(), card_key)
     response = unique_redirect('/table')
     return response
 
@@ -140,13 +132,16 @@ def unique_redirect(url):
 
 
 def load_table():
-    table_cookie = request.cookies.get(COOKIE_TABLE)
-    print(f'Table Cookie: {table_cookie}')
-    if table_cookie is None:
+    table_identifier = extract_table_identifier()
+    if table_identifier is None:
         return None
     else:
-        table_identifier = table_cookie
         return retrieve_table(table_identifier)
+
+
+def extract_table_identifier():
+    table_cookie = request.cookies.get(COOKIE_TABLE)
+    return table_cookie
 
 
 def load_user():

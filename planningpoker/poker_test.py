@@ -32,6 +32,7 @@ class PokerTestCase(unittest.TestCase):
         table.play_card(admin, poker.Card(3, 2))
         self.assertTrue(table.all_cards_played())
         self.assertEquals(2, table.average_card_value())
+        print(table)
 
     def test_user_identity(self):
         user = poker.User(TEST_USER_NAME)

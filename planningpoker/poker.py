@@ -36,6 +36,9 @@ class User:
         self.name = name
         self.is_admin = is_admin
 
+    def __str__(self):
+        return f'<identifier: {self.identifier} / name: {self.name} / is_admin = {self.is_admin}>'
+
     def key(self):
         return ("A" if self.is_admin else "Z") + self.name
 
@@ -61,6 +64,9 @@ class Table:
         if admin is not None:
             admin.is_admin = True
             self.users.add(admin)
+
+    def __str__(self):
+        return f'<identifier: {self.identifier} / description: {self.description} / last_update = {self.last_update} / card_value_visible = {self.card_value_visible} / played_cards = {self.played_cards}> '
 
     def add_user(self, user):
         self.users.add(user)

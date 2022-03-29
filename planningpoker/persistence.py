@@ -74,10 +74,53 @@ def create_table(user, table_name):
     return table
 
 
+def update_table_add_user(table_identifier, user):
+    with datastore_client.transaction():
+        entity, table = load_and_decode(table_identifier)
+        table.add_user(user)
+        encode_and_store(entity, table)
+
+
+def update_table_clear(table_identifier):
+    with datastore_client.transaction():
+        entity, table = load_and_decode(table_identifier)
+        table.clear()
+        encode_and_store(entity, table)
+
+
+def update_table_show_cards(table_identifier):
+    with datastore_client.transaction():
+        entity, table = load_and_decode(table_identifier)
+        table.show_cards()
+        encode_and_store(entity, table)
+
+
+def update_table_play_card(table_identifier, user, card_key):
+    with datastore_client.transaction():
+        entity, table = load_and_decode(table_identifier)
+        card = table.cards[card_key]
+        table.play_card(user, card)
+        encode_and_store(entity, table)
+
+
+def load_and_decode(table_identifier):
+    entity = retrieve_entity(TABLE_POKER_TABLE, table_identifier)
+    table = decode_table(entity)
+    print(f'load {table}\n{entity[ATTRIBUTE_JSON]}')
+    return entity, table
+
+
+def encode_and_store(entity, table):
+    json_text = json.dumps(table, cls=TableEncoder)
+    print(f'store {table}\n{json_text}')
+    entity[ATTRIBUTE_JSON] = json_text
+    datastore_client.put(entity)
+
+
 def store_table(table):
     with datastore_client.transaction():
         entity = retrieve_entity(TABLE_POKER_TABLE, table.identifier)
-        entity[ATTRIBUTE_JSON] = json.dumps(table, cls=TableEncoder, indent=2)
+        entity[ATTRIBUTE_JSON] = json.dumps(table, cls=TableEncoder)
         datastore_client.put(entity)
 
 
@@ -87,9 +130,13 @@ def retrieve_table(table_identifier):
     if entity is None:
         return None
     else:
-        table = json.JSONDecoder(object_hook=decode_json_table).decode(entity[ATTRIBUTE_JSON])
-        table.identifier = entity.key.id
-        return table
+        return decode_table(entity)
+
+
+def decode_table(entity):
+    table = json.JSONDecoder(object_hook=decode_json_table).decode(entity[ATTRIBUTE_JSON])
+    table.identifier = entity.key.id
+    return table
 
 
 def retrieve_entity(table_name, identifier):
