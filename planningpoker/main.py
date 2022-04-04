@@ -2,7 +2,7 @@ import time
 
 from flask import Flask, request, render_template, make_response, redirect
 
-from persistence import retrieve_user, retrieve_table, create_user, create_table, store_table, update_table_add_user, update_table_clear, \
+from persistence import retrieve_user, retrieve_table, create_user, create_table, update_table_add_user, update_table_clear, \
     update_table_show_cards, update_table_play_card
 
 COOKIE_TABLE = "POKER_TABLE"
