@@ -4,6 +4,8 @@ from google.cloud import datastore
 from google.cloud.datastore import Key
 
 from poker import User, Table, Card
+from datetime import datetime as dt
+
 
 # users = dict()
 # tables = dict()
@@ -32,7 +34,7 @@ from poker import User, Table, Card
 #     pass
 #
 
-APPENGINE_PROJECT = 'paderbornerpoker'
+APPENGINE_PROJECT = 'effortpoker'
 
 TABLE_USER = 'user'
 TABLE_POKER_TABLE = 'poker_table'
@@ -47,7 +49,6 @@ def create_user(user_name, is_admin=False):
         entity = datastore.Entity(key=datastore_client.key(TABLE_USER), exclude_from_indexes=[ATTRIBUTE_JSON])
         entity[ATTRIBUTE_JSON] = json.dumps(user, cls=UserEncoder)
         datastore_client.put(entity)
-    print(entity.key)
     user.identifier = entity.key.id
     return user
 
@@ -69,7 +70,6 @@ def create_table(user, table_name):
         entity = datastore.Entity(key=datastore_client.key(TABLE_POKER_TABLE), exclude_from_indexes=[ATTRIBUTE_JSON])
         entity[ATTRIBUTE_JSON] = json.dumps(table, cls=TableEncoder)
         datastore_client.put(entity)
-    print(entity.key)
     table.identifier = entity.key.id
     return table
 
@@ -106,13 +106,14 @@ def update_table_play_card(table_identifier, user, card_key):
 def load_and_decode(table_identifier):
     entity = retrieve_entity(TABLE_POKER_TABLE, table_identifier)
     table = decode_table(entity)
-    print(f'load {table}\n{entity[ATTRIBUTE_JSON]}')
+    print(f'load {table}')
     return entity, table
 
 
 def encode_and_store(entity, table):
+    table.save_time = f'{dt.now()}'
     json_text = json.dumps(table, cls=TableEncoder)
-    print(f'store {table}\n{json_text}')
+    print(f'store {table}')
     entity[ATTRIBUTE_JSON] = json_text
     datastore_client.put(entity)
 
@@ -189,6 +190,8 @@ def decode_json_table(json_object):
             table.description = json_object['description']
         if 'last_update' in json_object:
             table.last_update = json_object['last_update']
+        if 'save_time' in json_object:
+            table.save_time = json_object['save_time']
         if 'users' in json_object:
             json_users = json_object['users']
             table.users = set(json_users)

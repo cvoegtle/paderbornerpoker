@@ -1,4 +1,5 @@
-import random, time
+import random
+import time
 
 MAX_IDENTIFIER = 100000000
 
@@ -50,6 +51,7 @@ class Table:
     played_cards = {}
     card_value_visible = False
     last_update = time.time_ns()
+    save_time = ""
 
     def __init__(self, admin=None, description=None, cards=None):
         if description:
@@ -66,7 +68,7 @@ class Table:
             self.users.add(admin)
 
     def __str__(self):
-        return f'<identifier: {self.identifier} / description: {self.description} / last_update = {self.last_update} / card_value_visible = {self.card_value_visible} / played_cards = {self.played_cards}> '
+        return f'<identifier: {self.identifier} / description: {self.description} / save_time = {self.save_time} / card_value_visible = {self.card_value_visible} / played_cards = {self.played_cards}> '
 
     def add_user(self, user):
         self.users.add(user)
