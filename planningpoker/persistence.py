@@ -106,14 +106,12 @@ def update_table_play_card(table_identifier, user, card_key):
 def load_and_decode(table_identifier):
     entity = retrieve_entity(TABLE_POKER_TABLE, table_identifier)
     table = decode_table(entity)
-    print(f'load {table}')
     return entity, table
 
 
 def encode_and_store(entity, table):
     table.save_time = f'{dt.now()}'
     json_text = json.dumps(table, cls=TableEncoder)
-    print(f'store {table}')
     entity[ATTRIBUTE_JSON] = json_text
     datastore_client.put(entity)
 

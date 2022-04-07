@@ -30,7 +30,6 @@ def show_table():
     if table is None:
         return unique_redirect('/')
     else:
-        print(table)
         return render_table(table, load_user())
 
 
