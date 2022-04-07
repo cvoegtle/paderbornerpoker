@@ -45,15 +45,16 @@ class User:
 
 
 class Table:
-    identifier = random.randrange(0, MAX_IDENTIFIER)
-    users = set()
-    cards = []
-    played_cards = {}
-    card_value_visible = False
-    last_update = time.time_ns()
-    save_time = ""
 
     def __init__(self, admin=None, description=None, cards=None):
+        self.identifier = random.randrange(0, MAX_IDENTIFIER)
+        self.card_value_visible = False
+        self.last_update = time.time_ns()
+        self.save_time = ""
+        self.played_cards = {}
+        self.users = set()
+        self.cards = []
+
         if description:
             self.description = description
         else:

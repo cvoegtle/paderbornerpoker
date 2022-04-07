@@ -160,12 +160,6 @@ def decode_json_user(json_object):
 
 class TableEncoder(json.JSONEncoder):
     def default(self, o):
-        if isinstance(o, Table):
-            dictionary = o.__dict__
-            dictionary['users'] = o.users
-            dictionary['played_cards'] = o.played_cards
-            dictionary['card_value_visible'] = o.card_value_visible
-            return dictionary
         if isinstance(o, set):
             return list(o)
         else:
@@ -182,19 +176,16 @@ def decode_json_table(json_object):
         return user
     elif 'description' in json_object and 'card_value_visible' in json_object:
         table = Table()
-        if 'identifier' in json_object:
-            table.identifier = json_object['identifier']
-        if 'card_value_visible' in json_object:
-            table.card_value_visible = json_object['card_value_visible']
-        if 'description' in json_object:
-            table.description = json_object['description']
-        if 'last_update' in json_object:
-            table.last_update = json_object['last_update']
-        if 'save_time' in json_object:
-            table.save_time = json_object['save_time']
-        if 'users' in json_object:
-            json_users = json_object['users']
-            table.users = set(json_users)
+        table.identifier = json_object.get('identifier')
+        table.card_value_visible = json_object.get('card_value_visible')
+        table.description = json_object.get('description')
+        table.last_update = json_object.get('last_update')
+        table.save_time = json_object.get('save_time')
+        json_users = json_object.get('users')
+        table.users = set(json_users)
+        played_cards = json_object.get('played_cards')
+        for key, card in played_cards.items():
+            table.played_cards[int(key)] = card
         return table
     else:
         return json_object

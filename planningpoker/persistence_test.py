@@ -20,6 +20,7 @@ class JSONSerialisationTest(unittest.TestCase):
         user = User("User name")
         table.add_user(user)
         table.play_card(admin, Card(2, value=3))
+        table.play_card(user, Card(3, value=5))
         table.show_cards()
         json_table = json.dumps(table, cls=TableEncoder)
         table2 = json.JSONDecoder(object_hook=decode_json_table).decode(json_table)
