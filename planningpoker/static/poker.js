@@ -37,12 +37,12 @@ class TableObserver {
       location.replace(uniqueUrl("/table"));
     }
     this.pollCount++;
-    if (this.pollCount >= 60) {
+    if (this.pollCount >= 30) {
       this.pollInterval = 30000;
       this.stopInterval();
       this.start();
     }
-    if (this.pollCount >= 120) {
+    if (this.pollCount >= 60) {
       this.stopInterval();
     }
   }
