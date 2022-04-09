@@ -15,6 +15,9 @@ class Card:
         else:
             self.text = str(value)
 
+    def __eq__(self, other):
+        return isinstance(other, Card) and self.key == other.key
+
     def __str__(self):
         return f'<text: {self.text} / value: {self.value}>'
 
@@ -36,6 +39,12 @@ class User:
         self.identifier = random.randrange(0, MAX_IDENTIFIER)
         self.name = name
         self.is_admin = is_admin
+
+    def __eq__(self, other):
+        return isinstance(other, User) and other.identifier == self.identifier
+
+    def __hash__(self):
+        return hash(self.identifier)
 
     def __str__(self):
         return f'<identifier: {self.identifier} / name: {self.name} / is_admin = {self.is_admin}>'
@@ -90,6 +99,9 @@ class Table:
 
     def card_played_by(self, user):
         return self.played_cards.get(user.identifier)
+
+    def is_users_card(self, user, card):
+        return self.card_played_by(user) == card
 
     def all_cards_played(self):
         return len(self.users) <= len(self.played_cards)

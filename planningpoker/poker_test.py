@@ -44,6 +44,13 @@ class PokerTestCase(unittest.TestCase):
         played_card = table.card_played_by(user)
         self.assertEqual(card, played_card)
 
+    def test_card_played_by(self):
+        admin = poker.User("Admin user")
+        table = poker.Table(admin)
+        table.play_card(admin, poker.Card(1, 1))
+        self.assertFalse(table.is_users_card(admin, poker.Card(2,2)))
+        self.assertTrue(table.is_users_card(admin, poker.Card(1,1)))
+
 
 if __name__ == '__main__':
     unittest.main()

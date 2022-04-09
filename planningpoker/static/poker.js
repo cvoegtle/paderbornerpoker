@@ -16,6 +16,16 @@ function updateJoinButtonStatus() {
   joinButton.disabled = disabled;
 }
 
+function onToggleAutoUpdate() {
+  document.cookie = `AUTO_UPDATE=${isAutoUpdateEnabled() ? "ON" : "OFF"}`
+}
+
+function isAutoUpdateEnabled() {
+  let updateAutoCheckbox = document.getElementById("auto_update");
+  let autoUpdate = updateAutoCheckbox.checked;
+  return autoUpdate;
+}
+
 function containsText(elementName) {
   let element = document.getElementById(elementName);
   return element.value != null && element.value.trim().length > 0;
@@ -27,7 +37,7 @@ class TableObserver {
   pollCount = 0;
 
   start() {
-    this.intervalId = window.setInterval(this.pollServerForChange, this.pollInterval, processResponse, processError);
+    this.intervalId = window.setInterval(this.checkForUpdates, this.pollInterval, this);
   }
 
   processResponse(responseText) {
@@ -36,7 +46,6 @@ class TableObserver {
       this.pollCount = 0;
       location.replace(uniqueUrl("/table"));
     }
-    this.pollCount++;
     if (this.pollCount >= 30) {
       this.pollInterval = 30000;
       this.stopInterval();
@@ -54,6 +63,13 @@ class TableObserver {
 
   stopInterval() {
     window.clearInterval(this.intervalId);
+  }
+
+  checkForUpdates(that) {
+    this.pollCount++;
+    if (isAutoUpdateEnabled()) {
+      that.pollServerForChange(processResponse, processError)
+    }
   }
 
   pollServerForChange(responseCallback, errorCallback) {
