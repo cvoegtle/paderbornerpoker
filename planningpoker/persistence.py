@@ -43,9 +43,6 @@ ATTRIBUTE_JSON = 'json'
 datastore_client = datastore.Client()
 
 
-last_update_cache = dict()
-
-
 def create_user(user_name, is_admin=False):
     user = User(user_name, is_admin=is_admin)
     with datastore_client.transaction():
@@ -70,7 +67,6 @@ def retrieve_user(user_identifier):
 def create_table(user, table_name):
     table = Table(user, table_name)
     with datastore_client.transaction():
-        update_timestamp_cache(table)
         entity = datastore.Entity(key=datastore_client.key(TABLE_POKER_TABLE), exclude_from_indexes=[ATTRIBUTE_JSON])
         entity[ATTRIBUTE_JSON] = json.dumps(table, cls=TableEncoder)
         datastore_client.put(entity)
@@ -114,25 +110,15 @@ def load_and_decode(table_identifier):
 
 
 def encode_and_store(entity, table):
-    update_timestamp_cache(table)
     table.save_time = f'{dt.now()}'
     json_text = json.dumps(table, cls=TableEncoder)
     entity[ATTRIBUTE_JSON] = json_text
     datastore_client.put(entity)
 
 
-def update_timestamp_cache(table):
-    last_update_cache[str(table.identifier)] = table.last_update
-
-
 def retrieve_table_update(table_identifier):
-    last_update = last_update_cache.get(str(table_identifier))
-    if last_update is None:
-        table = retrieve_table(table_identifier)
-        last_update = table.last_update
-        print(f'Cache miss for {table_identifier} - {table.description}')
-    else:
-        print(f'Cache hit for {table_identifier}')
+    table = retrieve_table(table_identifier)
+    last_update = table.last_update
     return last_update
 
 
