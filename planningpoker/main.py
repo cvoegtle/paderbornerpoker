@@ -3,7 +3,7 @@ import time
 from flask import Flask, request, render_template, make_response, redirect
 
 from persistence import retrieve_user, retrieve_table, create_user, create_table, update_table_add_user, update_table_clear, \
-    update_table_show_cards, update_table_play_card
+    update_table_show_cards, update_table_play_card, retrieve_table_update
 
 COOKIE_TABLE = "POKER_TABLE"
 COOKIE_TABLE_UPDATE = "TABLE_UPDATE"
@@ -165,8 +165,8 @@ def clear_cookie(response, cookie):
 # AJAX Anfrage, ob sich etwas am Tisch geändert hat
 @app.route('/check_for_updates', methods=['GET', 'POST'])
 def check_for_update():
-    table = load_table()
-    return str(table.last_update)
+    last_update = retrieve_table_update(extract_table_identifier())
+    return str(last_update)
 
 
 # Aufwärmanfragen der App Engine annehmen und positiv beantworten, damit immer eine aktive Instanz vorhanden ist
