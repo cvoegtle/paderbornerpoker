@@ -1,6 +1,7 @@
 import time
 
 from flask import Flask, request, render_template, make_response, redirect
+from google.appengine.api import wrap_wsgi_app
 
 from persistence import retrieve_user, retrieve_table, create_user, create_table, update_table_add_user, update_table_clear, \
     update_table_show_cards, update_table_play_card, retrieve_table_update
@@ -99,8 +100,8 @@ def play_card(card_key):
 
 
 def render_table(table, user):
-    auto_update = request.cookies.get(COOKIE_AUTO_UPDATE) == "ON"
-    show_disabled = not table.all_cards_played() and not user.is_admin
+    auto_update = extract_auto_update_enabled()
+    show_disabled = (not table.all_cards_played() and not user.is_admin) or table.card_value_visible
     rendered_page = render_template('table.html', table=table, my_user=user, show_action_disabled=show_disabled, auto_update=auto_update)
     response = make_response(rendered_page)
     set_cookie(response, COOKIE_TABLE_UPDATE, table.last_update)
@@ -140,11 +141,6 @@ def load_table():
         return retrieve_table(table_identifier)
 
 
-def extract_table_identifier():
-    table_cookie = request.cookies.get(COOKIE_TABLE)
-    return table_cookie
-
-
 def load_user():
     user_cookie = request.cookies.get(COOKIE_USER)
     if user_cookie is None:
@@ -152,6 +148,15 @@ def load_user():
     else:
         user_identifier = int(user_cookie)
         return retrieve_user(user_identifier)
+
+
+def extract_table_identifier():
+    table_cookie = request.cookies.get(COOKIE_TABLE)
+    return table_cookie
+
+
+def extract_auto_update_enabled():
+    return request.cookies.get(COOKIE_AUTO_UPDATE) != "OFF"
 
 
 def set_cookie(response, cookie, value, max_age=None):
