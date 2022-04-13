@@ -1,7 +1,6 @@
 import time
 
 from flask import Flask, request, render_template, make_response, redirect
-from google.appengine.api import wrap_wsgi_app
 
 from persistence import retrieve_user, retrieve_table, create_user, create_table, update_table_add_user, update_table_clear, \
     update_table_show_cards, update_table_play_card, retrieve_table_update
