@@ -81,10 +81,10 @@ def update_table_add_user(table_identifier, user):
         encode_and_store(entity, table)
 
 
-def update_table_clear(table_identifier):
+def update_table_clear(table_identifier, user):
     with datastore_client.transaction():
         entity, table = load_and_decode(table_identifier)
-        table.clear()
+        table.clear(user)
         encode_and_store(entity, table)
 
 

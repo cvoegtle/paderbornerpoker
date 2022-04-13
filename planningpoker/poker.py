@@ -84,10 +84,11 @@ class Table:
         self.users.add(user)
         self.mark_update()
 
-    def clear(self):
-        self.played_cards.clear()
-        self.card_value_visible = False
-        self.mark_update()
+    def clear(self, user):
+        if self.card_played_by(user):
+            self.played_cards.clear()
+            self.card_value_visible = False
+            self.mark_update()
 
     def show_cards(self):
         self.card_value_visible = True

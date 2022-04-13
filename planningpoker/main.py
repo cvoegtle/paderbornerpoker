@@ -79,7 +79,7 @@ def watch_table():
 
 @app.route('/clear', methods=['POST'])
 def clear_table():
-    update_table_clear(extract_table_identifier())
+    update_table_clear(extract_table_identifier(), load_user())
     response = unique_redirect('/table')
     return response
 
