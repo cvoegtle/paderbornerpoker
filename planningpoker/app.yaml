@@ -6,7 +6,7 @@ automatic_scaling:
   min_instances: 0
 
 inbound_services:
-  - warmup
+#  - warmup
 
 handlers:
   # This configures Google App Engine to serve the files in the app's static
