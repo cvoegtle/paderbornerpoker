@@ -5,11 +5,12 @@ from flask import Flask, request, render_template, make_response, redirect
 from persistence import retrieve_user, retrieve_table, create_user, create_table, update_table_add_user, update_table_clear, \
     update_table_show_cards, update_table_play_card, retrieve_table_update
 
-COOKIE_TABLE = "POKER_TABLE"
-COOKIE_TABLE_UPDATE = "TABLE_UPDATE"
-COOKIE_USER = "POKER_USER_ID"
-COOKIE_USER_NAME = "POKER_USER_NAME"
-COOKIE_AUTO_UPDATE = "AUTO_UPDATE"
+COOKIE_TABLE = 'POKER_TABLE'
+COOKIE_TABLE_UPDATE = 'TABLE_UPDATE'
+COOKIE_USER = 'POKER_USER_ID'
+COOKIE_USER_NAME = 'POKER_USER_NAME'
+COOKIE_AUTO_UPDATE = 'AUTO_UPDATE'
+COOKIE_PREVIEW_MY_CARD = 'PREVIEW_MY_CARD'
 
 app = Flask(__name__)
 
@@ -100,8 +101,14 @@ def play_card(card_key):
 
 def render_table(table, user):
     auto_update = extract_auto_update_enabled()
+    preview_my_card = extract_preview_my_card_enabled()
     show_disabled = (not table.all_cards_played() and not user.is_admin) or table.card_value_visible
-    rendered_page = render_template('table.html', table=table, my_user=user, show_action_disabled=show_disabled, auto_update=auto_update)
+    rendered_page = render_template('table.html',
+                                    table=table,
+                                    my_user=user,
+                                    show_action_disabled=show_disabled,
+                                    auto_update=auto_update,
+                                    preview_my_card=preview_my_card)
     response = make_response(rendered_page)
     set_cookie(response, COOKIE_TABLE_UPDATE, table.last_update)
     return response
@@ -156,6 +163,10 @@ def extract_table_identifier():
 
 def extract_auto_update_enabled():
     return request.cookies.get(COOKIE_AUTO_UPDATE) != "OFF"
+
+
+def extract_preview_my_card_enabled():
+    return request.cookies.get(COOKIE_PREVIEW_MY_CARD) != "OFF"
 
 
 def set_cookie(response, cookie, value, max_age=None):

@@ -20,10 +20,22 @@ function onToggleAutoUpdate() {
   document.cookie = `AUTO_UPDATE=${isAutoUpdateEnabled() ? "ON" : "OFF"}`
 }
 
+function onTogglePreviewMyCard() {
+  document.cookie = `PREVIEW_MY_CARD=${isPreviewMyCardEnabled() ? "ON" : "OFF"}`
+  location.replace(uniqueUrl("/table"));
+}
+
 function isAutoUpdateEnabled() {
-  let updateAutoCheckbox = document.getElementById("auto_update");
-  let autoUpdate = updateAutoCheckbox.checked;
-  return autoUpdate;
+  return isCheckBoxEnabled("auto_update");
+}
+
+function isPreviewMyCardEnabled() {
+  return isCheckBoxEnabled("preview_my_card")
+}
+
+function isCheckBoxEnabled(elementId) {
+  let checkbox = document.getElementById(elementId);
+  return checkbox.checked;
 }
 
 function containsText(elementName) {
