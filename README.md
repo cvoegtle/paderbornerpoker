@@ -1,5 +1,5 @@
 # Effort Poker
-Effort Poker ist eine online Version des Planning Pokers während eines Clarification Meetings.
+[Effort Poker](https://effortpoker.ew.r.appspot.com/) ist eine online Version des Planning Pokers während eines Clarification Meetings.
 Die Anzahl Teilnehmer ist nur durch die Kapazität des Servers begrenzt. Diese lässt sich
 erhöhen indem die automatische Aktualisierung ausgeschaltet wird
 
