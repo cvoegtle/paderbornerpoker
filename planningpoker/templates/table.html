@@ -41,7 +41,8 @@
   </div>
   <div>
     <input type="submit" formaction="/show" class="action_button" value="aufdecken" {% if show_action_disabled %}disabled{% endif %}/>
-    <input type="submit" formaction="/clear" class="action_button" value="abräumen" {% if not table.card_played_by(my_user) %}disabled{% endif %}/>
+    <input type="submit" formaction="/clear" class="action_button" value="abräumen"
+           {% if not (table.card_played_by(my_user) or table.card_value_visible and my_user.is_admin) %}disabled{% endif %}/>
     <input type="submit" formaction="/table" class="action_button" value="aktualisieren"/>
   </div>
   <div>
