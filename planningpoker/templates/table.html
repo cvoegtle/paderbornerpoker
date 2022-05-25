@@ -8,9 +8,10 @@
 
   <script type="text/javascript" src="{{ url_for('static', filename='poker.js') }}"></script>
 </head>
-<body onload="backgroundCheck()">
+<body onload="backgroundCheck()" class="{% if table.matching_cards()%}estimations_match{% endif %}
+{% if table.differing_cards()%}estimations_differ{% endif %}">
 <h1>{{table.description}}</h1>
-<form method="post">
+<form id="formular" method="post">
   <div class="board">
     <div class="board_column">
       {% for user in table.sorted_users() %}

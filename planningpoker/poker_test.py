@@ -41,8 +41,8 @@ class PokerTestCase(unittest.TestCase):
         table.play_card(user, card)
 
         user2 = poker.User(TEST_USER_NAME)
-        played_card = table.card_played_by(user)
-        self.assertEqual(card, played_card)
+        played_card = table.card_played_by(user2)
+        self.assertNotEqual(card, played_card)
 
     def test_card_played_by(self):
         admin = poker.User("Admin user")
@@ -50,6 +50,28 @@ class PokerTestCase(unittest.TestCase):
         table.play_card(admin, poker.Card(1, 1))
         self.assertFalse(table.is_users_card(admin, poker.Card(2,2)))
         self.assertTrue(table.is_users_card(admin, poker.Card(1,1)))
+
+    def test_matching_cards(self):
+        admin = poker.User("Admin user")
+        table = poker.Table(admin)
+        table.play_card(admin, poker.Card(1, 1))
+        table.play_card(poker.User(TEST_USER_NAME), poker.Card(1, 1))
+
+        self.assertFalse(table.matching_cards())
+        self.assertFalse(table.differing_cards())
+        table.show_cards()
+        self.assertTrue(table.matching_cards())
+        self.assertFalse(table.differing_cards())
+
+    def test_match_null_value(self):
+        admin = poker.User("Admin user")
+        table = poker.Table(admin)
+        table.play_card(admin, poker.Card(1, 1))
+        table.play_card(poker.User(TEST_USER_NAME), poker.Card(2))
+        self.assertFalse(table.differing_cards())
+        table.show_cards()
+        self.assertFalse(table.matching_cards())
+        self.assertTrue(table.differing_cards())
 
 
 if __name__ == '__main__':

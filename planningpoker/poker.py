@@ -94,6 +94,25 @@ class Table:
         self.card_value_visible = True
         self.mark_update()
 
+    def matching_cards(self):
+        if not self.card_value_visible:
+            return False
+        contains_none = any([card.value is None for card in self.played_cards.values()])
+        if contains_none:
+            return False
+        reference_value = next(iter(self.played_cards.values())).value
+        return all([card.value == reference_value for card in self.played_cards.values()])
+
+    def differing_cards(self):
+        if not self.card_value_visible:
+            return False
+        contains_none = any([card.value is None for card in self.played_cards.values()])
+        if contains_none:
+            return True
+        min_value = min([card.value for card in self.played_cards.values()])
+        max_value = max([card.value for card in self.played_cards.values()])
+        return max_value - min_value > 8
+
     def play_card(self, user, card):
         self.played_cards[user.identifier] = card
         self.mark_update()
@@ -128,5 +147,3 @@ class Table:
 
     def mark_update(self):
         self.last_update = time.time_ns()
-
-

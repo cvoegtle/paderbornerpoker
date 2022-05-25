@@ -81,5 +81,27 @@ body {
     width: 300px;
 }
 
+.estimations_match {
+    background-color: white;
+    animation: green_flash 0.8s ease-in-out 1;
+}
+
+@keyframes green_flash {
+    80% {
+        background-color: forestgreen;
+    }
+}
+
+.estimations_differ {
+    background-color: white;
+    animation: red_flash 0.8s ease-in-out 1;
+}
+
+@keyframes red_flash {
+    80% {
+        background-color: darkred;
+    }
+}
+
 
 
