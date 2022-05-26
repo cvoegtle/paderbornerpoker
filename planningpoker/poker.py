@@ -111,7 +111,7 @@ class Table:
             return True
         min_value = min([card.value for card in self.played_cards.values()])
         max_value = max([card.value for card in self.played_cards.values()])
-        return max_value - min_value > 8
+        return max_value > 0 and (max_value - min_value) > 2 and (max_value - min_value) / max_value >= 0.5
 
     def play_card(self, user, card):
         self.played_cards[user.identifier] = card
