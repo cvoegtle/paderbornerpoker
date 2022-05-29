@@ -18,6 +18,9 @@
       <div class="user_row {% if user == my_user %}my_user_row{% endif %}">
       <div class="user_name">
         <span>{{user.name}}</span>
+        {% if user == my_user %}
+          <input type="submit" formaction="/remove_user" class="remove_user_button" value="x"/>
+        {% endif %}
       </div>
         {% if table.card_played_by(user) != None %}
         <div class="played_card {% if not table.card_value_visible %}closed_card{% endif %}">

@@ -3,7 +3,7 @@ import time
 from flask import Flask, request, render_template, make_response, redirect
 
 from persistence import retrieve_user, retrieve_table, create_user, create_table, update_table_add_user, update_table_clear, \
-    update_table_show_cards, update_table_play_card, retrieve_table_update
+    update_table_show_cards, update_table_play_card, retrieve_table_update, update_table_remove_user
 
 COOKIE_TABLE = 'POKER_TABLE'
 COOKIE_TABLE_UPDATE = 'TABLE_UPDATE'
@@ -65,6 +65,13 @@ def accept_invitation():
     response = unique_redirect('/table')
     set_cookie(response, COOKIE_USER, user.identifier)
     set_cookie(response, COOKIE_USER_NAME, user.name)
+    return response
+
+@app.route('/remove_user', methods=['POST'])
+def remove_user():
+    user = load_user()
+    update_table_remove_user(extract_table_identifier(), user)
+    response = unique_redirect('/table')
     return response
 
 

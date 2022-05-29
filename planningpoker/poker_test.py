@@ -16,8 +16,7 @@ class PokerTestCase(unittest.TestCase):
         self.assertEqual(13, len(deck))
 
     def test_initial_table(self):
-        admin = poker.User("Admin user")
-        table = poker.Table(admin)
+        admin, table = create_admin_and_table()
         player = poker.User("First User")
         table.add_user(player)
 
@@ -45,15 +44,13 @@ class PokerTestCase(unittest.TestCase):
         self.assertNotEqual(card, played_card)
 
     def test_card_played_by(self):
-        admin = poker.User("Admin user")
-        table = poker.Table(admin)
+        admin, table = create_admin_and_table()
         table.play_card(admin, poker.Card(1, 1))
         self.assertFalse(table.is_users_card(admin, poker.Card(2,2)))
         self.assertTrue(table.is_users_card(admin, poker.Card(1,1)))
 
     def test_matching_cards(self):
-        admin = poker.User("Admin user")
-        table = poker.Table(admin)
+        admin, table = create_admin_and_table()
         table.play_card(admin, poker.Card(1, 1))
         table.play_card(poker.User(TEST_USER_NAME), poker.Card(1, 1))
 
@@ -64,14 +61,38 @@ class PokerTestCase(unittest.TestCase):
         self.assertFalse(table.differing_cards())
 
     def test_match_null_value(self):
-        admin = poker.User("Admin user")
-        table = poker.Table(admin)
+        admin, table = create_admin_and_table()
         table.play_card(admin, poker.Card(1, 1))
         table.play_card(poker.User(TEST_USER_NAME), poker.Card(2))
         self.assertFalse(table.differing_cards())
         table.show_cards()
         self.assertFalse(table.matching_cards())
         self.assertTrue(table.differing_cards())
+
+    def test_remove_user_from_table_with_card(self):
+        admin, table = create_admin_and_table()
+        user = poker.User("User")
+        table.add_user(user)
+        table.play_card(user, poker.Card(1))
+        table.remove_user(user)
+
+        self.assertEqual(1, len(table.users))
+        self.assertIsNone(table.card_played_by(user))
+
+    def test_remove_user_from_table(self):
+        admin, table = create_admin_and_table()
+        user = poker.User("User")
+        table.add_user(user)
+        table.remove_user(user)
+
+        self.assertEqual(1, len(table.users))
+        self.assertIsNone(table.card_played_by(user))
+
+
+def create_admin_and_table():
+    admin = poker.User("Admin user")
+    table = poker.Table(admin)
+    return admin, table
 
 
 if __name__ == '__main__':

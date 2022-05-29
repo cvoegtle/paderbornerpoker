@@ -84,6 +84,11 @@ class Table:
         self.users.add(user)
         self.mark_update()
 
+    def remove_user(self, user):
+        self.users.remove(user)
+        if self.card_played_by(user):
+            del self.played_cards[user.identifier]
+
     def clear(self, user):
         if self.card_played_by(user):
             self.played_cards.clear()
