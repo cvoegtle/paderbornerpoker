@@ -8,7 +8,7 @@ class PokerTestCase(unittest.TestCase):
     def test_deck_building(self):
         deck = poker.build_deck([None])
         self.assertEqual(1, len(deck))
-        self.assertEquals('?', deck[0].text)
+        self.assertEqual('?', deck[0].text)
 
     def test_standard_deck(self):
         deck = poker.standard_deck()
@@ -30,7 +30,7 @@ class PokerTestCase(unittest.TestCase):
 
         table.play_card(admin, poker.Card(3, 2))
         self.assertTrue(table.all_cards_played())
-        self.assertEquals(2, table.average_card_value())
+        self.assertEqual(2, table.average_card_value())
         print(table)
 
     def test_user_identity(self):

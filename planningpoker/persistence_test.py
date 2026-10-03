@@ -28,7 +28,7 @@ class JSONSerialisationTest(unittest.TestCase):
         self.assertEqual(table.description, table2.description)
         card = table2.card_played_by(admin)
         self.assertIsNotNone(card)
-        self.assertEquals(2, len(table2.users))
+        self.assertEqual(2, len(table2.users))
 
         self.assertTrue(table2.card_value_visible)
         self.assertEqual(table.last_update, table2.last_update)

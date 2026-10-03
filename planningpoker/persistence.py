@@ -1,7 +1,7 @@
 import json
+import os
 
 from google.cloud import datastore
-from google.cloud.datastore import Key
 
 from poker import User, Table, Card
 from datetime import datetime as dt
@@ -34,13 +34,13 @@ from datetime import datetime as dt
 #     pass
 #
 
-APPENGINE_PROJECT = 'effortpoker'
+APPENGINE_PROJECT = os.environ.get('GOOGLE_CLOUD_PROJECT', 'effortpoker')
 
 TABLE_USER = 'user'
 TABLE_POKER_TABLE = 'poker_table'
 ATTRIBUTE_JSON = 'json'
 
-datastore_client = datastore.Client()
+datastore_client = datastore.Client(project=APPENGINE_PROJECT)
 
 
 def create_user(user_name, is_admin=False):
@@ -145,7 +145,7 @@ def decode_table(entity):
 
 
 def retrieve_entity(table_name, identifier):
-    key = Key(table_name, int(identifier), project=APPENGINE_PROJECT)
+    key = datastore_client.key(table_name, int(identifier))
     entity = datastore_client.get(key)
     return entity
 

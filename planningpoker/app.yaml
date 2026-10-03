@@ -1,5 +1,6 @@
-runtime: python39
+runtime: python312
 instance_class: F1
+entrypoint: gunicorn -b :$PORT main:app
 
 automatic_scaling:
   max_instances: 1
