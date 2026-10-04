@@ -18,7 +18,7 @@
 __pycache__/
 
 # deployment script
-deploy2appengine.sh
+deploy2*.sh
 
 # scripts for datastore emulation locally
 datastore_scripts/

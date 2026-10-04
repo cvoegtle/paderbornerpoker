@@ -25,16 +25,10 @@ Im IntelliJ eine Run Configuration für `planningpoker/main.py` anlegen. Dort fo
 DATASTORE_EMULATOR_HOST=localhost:8081
 ```
 
-## Deployment auf Cloud Run (empfohlen für SSE / Realtime)
+## Deployment auf Cloud Run
 Dieses Skript ausführen (nutzt Google Cloud Build, benötigt kein lokales Docker):
 ```bash
 planningpoker/deploy2cloudrun.sh
-```
-
-## Legacy: auf die App Engine deployen
-Dieses Skript ausführen:
-```bash
-planningpoker/deploy2appengine.sh
 ```
 
 
