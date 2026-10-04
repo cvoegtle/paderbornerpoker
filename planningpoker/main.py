@@ -19,8 +19,8 @@ app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 
-# Einstiegspunkt. Tisch anzeigen falls vorhanden,
-# sonst eine Seite anzeigen um den Tisch anzulegen
+# Einstiegspunkt. Tisch anzeigen, falls vorhanden,
+# sonst eine Seite anzeigen, um den Tisch anzulegen
 @app.route('/', methods=['GET'])
 def start_new_table():
     response = render_create_table()
