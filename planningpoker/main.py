@@ -1,7 +1,9 @@
+import queue
 import time
 
-from flask import Flask, request, render_template, make_response, redirect
+from flask import Flask, request, render_template, make_response, redirect, Response
 
+from broadcaster import broadcaster
 from persistence import retrieve_user, retrieve_table, create_user, create_table, update_table_add_user, update_table_clear, \
     update_table_show_cards, update_table_play_card, retrieve_table_update, update_table_remove_user
 
@@ -164,8 +166,15 @@ def load_user():
 
 
 def extract_table_identifier():
-    table_cookie = request.cookies.get(COOKIE_TABLE)
-    return table_cookie
+    table_id = request.args.get('table_id')
+    if not table_id:
+        table_id = request.cookies.get(COOKIE_TABLE)
+    if not table_id:
+        return None
+    try:
+        return int(str(table_id).split('?')[0])
+    except (ValueError, TypeError):
+        return None
 
 
 def extract_auto_update_enabled():
@@ -184,11 +193,44 @@ def clear_cookie(response, cookie):
     response.set_cookie(cookie, "", samesite='Strict', httponly=False, max_age=0)
 
 
-# AJAX Anfrage, ob sich etwas am Tisch geändert hat
+# AJAX Anfrage, ob sich etwas am Tisch geändert hat (Fallback zum Polling)
 @app.route('/check_for_updates', methods=['GET', 'POST'])
 def check_for_update():
     last_update = retrieve_table_update(extract_table_identifier())
     return str(last_update)
+
+
+# Server-Sent Events (SSE) Stream für sofortige Push-Benachrichtigungen
+@app.route('/table/events', methods=['GET'])
+def table_events():
+    table_id = extract_table_identifier()
+    if not table_id:
+        return 'Tisch nicht gefunden', 404
+
+    def event_stream():
+        q = broadcaster.subscribe(table_id)
+        if q is None:
+            return
+        try:
+            initial_update = retrieve_table_update(table_id)
+            if initial_update is not None:
+                yield f"data: {initial_update}\n\n"
+
+            while True:
+                try:
+                    update_id = q.get(timeout=15)
+                    yield f"data: {update_id}\n\n"
+                except queue.Empty:
+                    yield ": keep-alive\n\n"
+        except GeneratorExit:
+            pass
+        finally:
+            broadcaster.unsubscribe(table_id, q)
+
+    response = Response(event_stream(), mimetype='text/event-stream')
+    response.headers['Cache-Control'] = 'no-cache, no-transform'
+    response.headers['X-Accel-Buffering'] = 'no'
+    return response
 
 
 # Aufwärmanfragen der App Engine annehmen und positiv beantworten, damit immer eine aktive Instanz vorhanden ist
@@ -198,4 +240,4 @@ def warmup():
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=8080, debug=True)
+    app.run(host='127.0.0.1', port=8080, debug=True, threaded=True)

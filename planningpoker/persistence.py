@@ -5,6 +5,7 @@ from google.cloud import datastore
 
 from poker import User, Table, Card
 from datetime import datetime as dt
+from broadcaster import broadcaster
 
 
 # users = dict()
@@ -71,6 +72,7 @@ def create_table(user, table_name):
         entity[ATTRIBUTE_JSON] = json.dumps(table, cls=TableEncoder)
         datastore_client.put(entity)
     table.identifier = entity.key.id
+    broadcaster.set_last_update(table.identifier, table.last_update)
     return table
 
 
@@ -121,12 +123,17 @@ def encode_and_store(entity, table):
     json_text = json.dumps(table, cls=TableEncoder)
     entity[ATTRIBUTE_JSON] = json_text
     datastore_client.put(entity)
+    broadcaster.notify(table.identifier, table.last_update)
 
 
 def retrieve_table_update(table_identifier):
+    cached = broadcaster.get_last_update(table_identifier)
+    if cached is not None:
+        return cached
     table = retrieve_table(table_identifier)
-    last_update = table.last_update
-    return last_update
+    if table is None:
+        return None
+    return table.last_update
 
 
 def retrieve_table(table_identifier):
@@ -135,7 +142,9 @@ def retrieve_table(table_identifier):
     if entity is None:
         return None
     else:
-        return decode_table(entity)
+        table = decode_table(entity)
+        broadcaster.set_last_update(table.identifier, table.last_update)
+        return table
 
 
 def decode_table(entity):
@@ -145,7 +154,11 @@ def decode_table(entity):
 
 
 def retrieve_entity(table_name, identifier):
-    key = datastore_client.key(table_name, int(identifier))
+    try:
+        ident_int = int(str(identifier).split('?')[0])
+    except (ValueError, TypeError):
+        return None
+    key = datastore_client.key(table_name, ident_int)
     entity = datastore_client.get(key)
     return entity
 

@@ -5,8 +5,8 @@ erhöhen indem die automatische Aktualisierung ausgeschaltet wird.
 
 ## Vorbereitung & Virtual Environment
 ```bash
-python3.12 -m venv env
-source env/bin/activate
+python3.12 -m venv venv
+source venv/bin/activate
 pip install -r planningpoker/requirements.txt
 ```
 
