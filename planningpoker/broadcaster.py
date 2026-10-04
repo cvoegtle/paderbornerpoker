@@ -10,16 +10,12 @@ class Broadcaster:
         self._lock = threading.Lock()
 
     def subscribe(self, table_id):
-        if not table_id:
-            return None
         q = queue.Queue(maxsize=20)
         with self._lock:
             self._listeners[table_id].add(q)
         return q
 
     def unsubscribe(self, table_id, q):
-        if not table_id or not q:
-            return
         with self._lock:
             listeners = self._listeners.get(table_id)
             if listeners:
@@ -28,8 +24,6 @@ class Broadcaster:
                     del self._listeners[table_id]
 
     def notify(self, table_id, update_id):
-        if not table_id:
-            return
         update_str = str(update_id)
         with self._lock:
             self._last_updates[table_id] = update_str

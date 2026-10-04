@@ -16,21 +16,13 @@ function updateJoinButtonStatus() {
   joinButton.disabled = disabled;
 }
 
-function onToggleAutoUpdate() {
-  document.cookie = `AUTO_UPDATE=${isAutoUpdateEnabled() ? "ON" : "OFF"}`
-}
-
 function onTogglePreviewMyCard() {
-  document.cookie = `PREVIEW_MY_CARD=${isPreviewMyCardEnabled() ? "ON" : "OFF"}`
+  document.cookie = `PREVIEW_MY_CARD=${isPreviewMyCardEnabled() ? "ON" : "OFF"}`;
   location.replace(uniqueUrl("/table"));
 }
 
-function isAutoUpdateEnabled() {
-  return isCheckBoxEnabled("auto_update");
-}
-
 function isPreviewMyCardEnabled() {
-  return isCheckBoxEnabled("preview_my_card")
+  return isCheckBoxEnabled("preview_my_card");
 }
 
 function isCheckBoxEnabled(elementId) {
@@ -45,48 +37,24 @@ function containsText(elementName) {
 
 class TableObserver {
   eventSource = null;
-  pollInterval = 5000;
-  intervalId = null;
-  pollCount = 0;
   isUpdating = false;
 
   start() {
-    if (window.EventSource) {
-      this.startSSE();
-    } else {
-      this.startPolling();
-    }
-  }
-
-  startSSE() {
     this.stop();
-    try {
-      let tableId = getCookie("POKER_TABLE");
-      let sseUrl = uniqueUrl(`/table/events${tableId ? "?table_id=" + encodeURIComponent(tableId) : ""}`);
-      this.eventSource = new EventSource(sseUrl);
+    let tableId = getCookie("POKER_TABLE");
+    let sseUrl = uniqueUrl(`/table/events${tableId ? "?table_id=" + encodeURIComponent(tableId) : ""}`);
+    this.eventSource = new EventSource(sseUrl);
 
-      this.eventSource.onmessage = (event) => {
-        if (!isAutoUpdateEnabled()) {
-          return;
-        }
-        let responseText = event.data;
-        if (responseText && responseText !== "keep-alive") {
-          this.processResponse(responseText);
-        }
-      };
+    this.eventSource.onmessage = (event) => {
+      let responseText = event.data;
+      if (responseText && responseText !== "keep-alive") {
+        this.processResponse(responseText);
+      }
+    };
 
-      this.eventSource.onerror = (err) => {
-        console.warn("SSE-Verbindung unterbrochen, automatischer Reconnect...", err);
-      };
-    } catch (e) {
-      console.error("Fehler beim Starten von SSE, Fallback auf Polling:", e);
-      this.startPolling();
-    }
-  }
-
-  startPolling() {
-    this.stopInterval();
-    this.intervalId = window.setInterval(this.checkForUpdates, this.pollInterval, this);
+    this.eventSource.onerror = (err) => {
+      console.warn("SSE-Verbindung unterbrochen, automatischer Reconnect...", err);
+    };
   }
 
   stop() {
@@ -94,30 +62,12 @@ class TableObserver {
       this.eventSource.close();
       this.eventSource = null;
     }
-    this.stopInterval();
-  }
-
-  stopInterval() {
-    if (this.intervalId) {
-      window.clearInterval(this.intervalId);
-      this.intervalId = null;
-    }
   }
 
   processResponse(responseText) {
     let lastUpdate = getCookie("TABLE_UPDATE");
     if (responseText != lastUpdate && !this.isUpdating) {
-      this.pollCount = 0;
       this.refreshTable(responseText);
-    }
-    if (this.intervalId) {
-      if (this.pollCount >= 30) {
-        this.pollInterval = 30000;
-        this.startPolling();
-      }
-      if (this.pollCount >= 60) {
-        this.stopInterval();
-      }
     }
   }
 
@@ -157,32 +107,6 @@ class TableObserver {
         this.isUpdating = false;
       });
   }
-
-  processError() {
-    console.log("failed to check whose turn. Stop polling");
-    this.stopInterval();
-  }
-
-  checkForUpdates(that) {
-    if (!that) that = this;
-    that.pollCount++;
-    if (isAutoUpdateEnabled()) {
-      that.pollServerForChange(processResponse, processError);
-    }
-  }
-
-  pollServerForChange(responseCallback, errorCallback) {
-    let ajaxRequest = new XMLHttpRequest();
-    ajaxRequest.onload = function () {
-      responseCallback(ajaxRequest.responseText);
-    };
-    ajaxRequest.onerror = function () {
-      errorCallback();
-    };
-
-    ajaxRequest.open("get", uniqueUrl("/check_for_updates"), true);
-    ajaxRequest.send();
-  }
 }
 
 function uniqueUrl(url) {
@@ -193,14 +117,6 @@ function uniqueUrl(url) {
 gameObserver = new TableObserver();
 function backgroundCheck() {
   gameObserver.start();
-}
-
-function processResponse(responseText) {
-  gameObserver.processResponse(responseText)
-}
-
-function processError() {
-  gameObserver.processError();
 }
 
 function getCookie(cookieName) {
@@ -218,4 +134,3 @@ function getCookie(cookieName) {
   }
   return "";
 }
-

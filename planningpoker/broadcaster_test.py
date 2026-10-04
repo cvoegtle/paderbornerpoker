@@ -12,14 +12,6 @@ class BroadcasterTestCase(unittest.TestCase):
         self.broadcaster.notify(100, 12345)
         self.assertEqual("12345", q.get_nowait())
 
-    def test_none_or_empty_table_id(self):
-        self.assertIsNone(self.broadcaster.subscribe(None))
-        self.assertIsNone(self.broadcaster.get_last_update(None))
-        # notify and set_last_update with None should be safe no-ops
-        self.broadcaster.notify(None, 123)
-        self.broadcaster.set_last_update(None, 123)
-        self.broadcaster.unsubscribe(None, None)
-
     def test_multiple_tables_isolation(self):
         q1 = self.broadcaster.subscribe(1)
         q2 = self.broadcaster.subscribe(2)

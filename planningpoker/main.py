@@ -11,7 +11,6 @@ COOKIE_TABLE = 'POKER_TABLE'
 COOKIE_TABLE_UPDATE = 'TABLE_UPDATE'
 COOKIE_USER = 'POKER_USER_ID'
 COOKIE_USER_NAME = 'POKER_USER_NAME'
-COOKIE_AUTO_UPDATE = 'AUTO_UPDATE'
 COOKIE_PREVIEW_MY_CARD = 'PREVIEW_MY_CARD'
 
 app = Flask(__name__)
@@ -109,14 +108,12 @@ def play_card(card_key):
 
 
 def render_table(table, user):
-    auto_update = extract_auto_update_enabled()
     preview_my_card = extract_preview_my_card_enabled()
     show_disabled = (not table.all_cards_played() and not user.is_admin) or table.card_value_visible
     rendered_page = render_template('table.html',
                                     table=table,
                                     my_user=user,
                                     show_action_disabled=show_disabled,
-                                    auto_update=auto_update,
                                     preview_my_card=preview_my_card)
     response = make_response(rendered_page)
     set_cookie(response, COOKIE_TABLE_UPDATE, table.last_update)
@@ -177,10 +174,6 @@ def extract_table_identifier():
         return None
 
 
-def extract_auto_update_enabled():
-    return request.cookies.get(COOKIE_AUTO_UPDATE) != "OFF"
-
-
 def extract_preview_my_card_enabled():
     return request.cookies.get(COOKIE_PREVIEW_MY_CARD) != "OFF"
 
@@ -193,13 +186,6 @@ def clear_cookie(response, cookie):
     response.set_cookie(cookie, "", samesite='Strict', httponly=False, max_age=0)
 
 
-# AJAX Anfrage, ob sich etwas am Tisch geändert hat (Fallback zum Polling)
-@app.route('/check_for_updates', methods=['GET', 'POST'])
-def check_for_update():
-    last_update = retrieve_table_update(extract_table_identifier())
-    return str(last_update)
-
-
 # Server-Sent Events (SSE) Stream für sofortige Push-Benachrichtigungen
 @app.route('/table/events', methods=['GET'])
 def table_events():
@@ -209,8 +195,6 @@ def table_events():
 
     def event_stream():
         q = broadcaster.subscribe(table_id)
-        if q is None:
-            return
         try:
             initial_update = retrieve_table_update(table_id)
             if initial_update is not None:
