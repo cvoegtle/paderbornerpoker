@@ -7,6 +7,8 @@ from broadcaster import broadcaster
 from persistence import retrieve_user, retrieve_table, create_user, create_table, update_table_add_user, update_table_clear, \
     update_table_show_cards, update_table_play_card, retrieve_table_update, update_table_remove_user
 
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 COOKIE_TABLE = 'POKER_TABLE'
 COOKIE_TABLE_UPDATE = 'TABLE_UPDATE'
 COOKIE_USER = 'POKER_USER_ID'
@@ -14,6 +16,7 @@ COOKIE_USER_NAME = 'POKER_USER_NAME'
 COOKIE_PREVIEW_MY_CARD = 'PREVIEW_MY_CARD'
 
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 
 # Einstiegspunkt. Tisch anzeigen falls vorhanden,

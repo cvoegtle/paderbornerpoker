@@ -1,5 +1,5 @@
 # Effort Poker
-[Effort Poker](https://effortpoker.ew.r.appspot.com/) ist eine online Version des Planning Pokers während eines Clarification Meetings.
+[Effort Poker](https://effortpoker.voegtle.org/) ist eine online Version des Planning Pokers während eines Clarification Meetings.
 Die Anzahl Teilnehmer ist nur durch die Kapazität des Servers begrenzt.
 
 ## Vorbereitung & Virtual Environment
@@ -25,7 +25,13 @@ Im IntelliJ eine Run Configuration für `planningpoker/main.py` anlegen. Dort fo
 DATASTORE_EMULATOR_HOST=localhost:8081
 ```
 
-## auf die Appengine deployen
+## Deployment auf Cloud Run (empfohlen für SSE / Realtime)
+Dieses Skript ausführen (nutzt Google Cloud Build, benötigt kein lokales Docker):
+```bash
+planningpoker/deploy2cloudrun.sh
+```
+
+## Legacy: auf die App Engine deployen
 Dieses Skript ausführen:
 ```bash
 planningpoker/deploy2appengine.sh
