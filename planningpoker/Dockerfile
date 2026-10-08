@@ -16,4 +16,4 @@ COPY . .
 EXPOSE 8080
 
 # Multi-threaded Gunicorn für langlebige SSE-Streams und hohe Concurrency
-CMD exec gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 64 --timeout 0 --forwarded-allow-ips='*' main:app
+CMD exec gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 128 --timeout 0 --forwarded-allow-ips='*' main:app

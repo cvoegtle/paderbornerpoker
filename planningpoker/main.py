@@ -1,9 +1,10 @@
 import queue
 import time
 
-from flask import Flask, request, render_template, make_response, redirect, Response
+from flask import Flask, request, render_template, make_response, redirect, Response, abort, send_from_directory
 
 from broadcaster import broadcaster
+from poker import standard_deck
 from persistence import retrieve_user, retrieve_table, create_user, create_table, update_table_add_user, update_table_clear, \
     update_table_show_cards, update_table_play_card, retrieve_table_update, update_table_remove_user
 
@@ -17,6 +18,11 @@ COOKIE_PREVIEW_MY_CARD = 'PREVIEW_MY_CARD'
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(app.static_folder, 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 # Einstiegspunkt. Tisch anzeigen, falls vorhanden,
@@ -33,10 +39,11 @@ def start_new_table():
 @app.route('/table', methods=['GET', 'POST'])
 def show_table():
     table = load_table()
-    if table is None:
+    user = load_user()
+    if table is None or user is None:
         return unique_redirect('/')
     else:
-        return render_table(table, load_user())
+        return render_table(table, user)
 
 
 # Adminbenutzer und Tisch anlegen.
@@ -56,6 +63,8 @@ def do_create_table():
 @app.route('/invitation/<int:table_identifier>', methods=['GET'])
 def receive_invitation(table_identifier):
     table = retrieve_table(table_identifier)
+    if table is None:
+        abort(404)
     response = render_invitation(table)
     set_cookie(response, COOKIE_TABLE, table.identifier)
     return response
@@ -64,8 +73,9 @@ def receive_invitation(table_identifier):
 # Einladung annehmen und dem Tisch beitreten
 @app.route('/accept_invitation', methods=['POST'])
 def accept_invitation():
-    user = create_user(request.form.get('user_name'))
-    update_table_add_user(extract_table_identifier(), user)
+    table_id = extract_table_identifier_mandatory(400)
+    user = create_user(request.form.get('user_name') or "")
+    update_table_add_user(table_id, user)
     response = unique_redirect('/table')
     set_cookie(response, COOKIE_USER, user.identifier)
     set_cookie(response, COOKIE_USER_NAME, user.name)
@@ -73,8 +83,9 @@ def accept_invitation():
 
 @app.route('/remove_user', methods=['POST'])
 def remove_user():
-    user = load_user()
-    update_table_remove_user(extract_table_identifier(), user)
+    user = load_user_mandatory(400)
+    table_id = extract_table_identifier_mandatory(400)
+    update_table_remove_user(table_id, user)
     response = unique_redirect('/table')
     return response
 
@@ -91,21 +102,27 @@ def watch_table():
 
 @app.route('/clear', methods=['POST'])
 def clear_table():
-    update_table_clear(extract_table_identifier(), load_user())
+    user = load_user_mandatory(400)
+    table_id = extract_table_identifier_mandatory(400)
+    update_table_clear(table_id, user)
     response = unique_redirect('/table')
     return response
 
 
 @app.route('/show', methods=['POST'])
 def show_cards_on_table():
-    update_table_show_cards(extract_table_identifier())
+    table_id = extract_table_identifier_mandatory(400)
+    update_table_show_cards(table_id)
     response = unique_redirect('/table')
     return response
 
 
-@app.route('/card/<int:card_key>', methods=['GET', 'POST'])
+@app.route('/card/<int:card_key>', methods=['POST'])
 def play_card(card_key):
-    update_table_play_card(extract_table_identifier(), load_user(), card_key)
+    validate_card(card_key)
+    user = load_user_mandatory(400)
+    table_id = extract_table_identifier_mandatory(400)
+    update_table_play_card(table_id, user, card_key)
     response = unique_redirect('/table')
     return response
 
@@ -156,13 +173,34 @@ def load_table():
         return retrieve_table(table_identifier)
 
 
+def load_table_mandatory(response_code):
+    table = load_table()
+    if table is None:
+        abort(response_code)
+    return table
+
+
 def load_user():
     user_cookie = request.cookies.get(COOKIE_USER)
     if user_cookie is None:
         return None
-    else:
+    try:
         user_identifier = int(user_cookie)
-        return retrieve_user(user_identifier)
+    except (ValueError, TypeError):
+        return None
+    return retrieve_user(user_identifier)
+
+
+def load_user_mandatory(response_code):
+    user = load_user()
+    if user is None:
+        abort(response_code)
+    return user
+
+
+def validate_card(card_key):
+    if card_key not in standard_deck():
+        abort(400)
 
 
 def extract_table_identifier():
@@ -175,6 +213,13 @@ def extract_table_identifier():
         return int(str(table_id).split('?')[0])
     except (ValueError, TypeError):
         return None
+
+
+def extract_table_identifier_mandatory(response_code=400):
+    table_id = extract_table_identifier()
+    if table_id is None:
+        abort(response_code)
+    return table_id
 
 
 def extract_preview_my_card_enabled():
@@ -203,7 +248,8 @@ def table_events():
             if initial_update is not None:
                 yield f"data: {initial_update}\n\n"
 
-            while True:
+            start_time = time.time()
+            while time.time() - start_time < 55:
                 try:
                     update_id = q.get(timeout=15)
                     yield f"data: {update_id}\n\n"
