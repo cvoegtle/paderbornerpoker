@@ -113,9 +113,18 @@ class PokerTestCase(unittest.TestCase):
         self.assertFalse(table.matching_cards())
         self.assertFalse(table.differing_cards())
 
-        # Also verify matching_cards and differing_cards if card_value_visible is True and last player leaves
+        # Single card played (value or ?) should not trigger matching or differing animations
         table.play_card(admin, poker.Card(1, 1))
         table.show_cards()
+        self.assertFalse(table.matching_cards())
+        self.assertFalse(table.differing_cards())
+
+        table.clear(admin)
+        table.play_card(admin, poker.Card(12, None))
+        table.show_cards()
+        self.assertFalse(table.matching_cards())
+        self.assertFalse(table.differing_cards())
+
         table.remove_user(admin)
         self.assertFalse(table.matching_cards())
         self.assertFalse(table.differing_cards())
