@@ -139,7 +139,7 @@ def play_custom_card():
 
 def render_table(table, user):
     preview_my_card = extract_preview_my_card_enabled()
-    show_disabled = (not table.all_cards_played() and not user.is_admin) or table.card_value_visible
+    show_disabled = len(table.played_cards) == 0 or (not table.all_cards_played() and not user.is_admin) or table.card_value_visible
     rendered_page = render_template('table.html',
                                     table=table,
                                     my_user=user,

@@ -106,6 +106,20 @@ class PokerTestCase(unittest.TestCase):
         self.assertIsNone(table.card_played_by(user))
         self.assertEqual(last_update_after_show, table.last_update)
 
+    def test_show_cards_without_played_cards(self):
+        admin, table = create_admin_and_table()
+        table.show_cards()
+        self.assertFalse(table.card_value_visible)
+        self.assertFalse(table.matching_cards())
+        self.assertFalse(table.differing_cards())
+
+        # Also verify matching_cards and differing_cards if card_value_visible is True and last player leaves
+        table.play_card(admin, poker.Card(1, 1))
+        table.show_cards()
+        table.remove_user(admin)
+        self.assertFalse(table.matching_cards())
+        self.assertFalse(table.differing_cards())
+
 
 def create_admin_and_table():
     admin = poker.User("Admin user")

@@ -96,11 +96,12 @@ class Table:
         self.mark_update()
 
     def show_cards(self):
-        self.card_value_visible = True
-        self.mark_update()
+        if len(self.played_cards) > 0:
+            self.card_value_visible = True
+            self.mark_update()
 
     def matching_cards(self):
-        if not self.card_value_visible:
+        if not self.card_value_visible or len(self.played_cards) == 0:
             return False
         contains_none = any([card.value is None for card in self.played_cards.values()])
         if contains_none:
@@ -109,7 +110,7 @@ class Table:
         return all([card.value == reference_value for card in self.played_cards.values()])
 
     def differing_cards(self):
-        if not self.card_value_visible:
+        if not self.card_value_visible or len(self.played_cards) == 0:
             return False
         contains_none = any([card.value is None for card in self.played_cards.values()])
         if contains_none:
