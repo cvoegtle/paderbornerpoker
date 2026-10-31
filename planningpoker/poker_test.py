@@ -88,6 +88,24 @@ class PokerTestCase(unittest.TestCase):
         self.assertEqual(1, len(table.users))
         self.assertIsNone(table.card_played_by(user))
 
+    def test_cannot_play_card_after_show(self):
+        admin, table = create_admin_and_table()
+        user = poker.User("User")
+        table.add_user(user)
+        card1 = poker.Card(1, 1)
+        card2 = poker.Card(2, 2)
+
+        table.play_card(admin, card1)
+        table.show_cards()
+        last_update_after_show = table.last_update
+
+        table.play_card(admin, card2)
+        table.play_card(user, card1)
+
+        self.assertEqual(card1, table.card_played_by(admin))
+        self.assertIsNone(table.card_played_by(user))
+        self.assertEqual(last_update_after_show, table.last_update)
+
 
 def create_admin_and_table():
     admin = poker.User("Admin user")

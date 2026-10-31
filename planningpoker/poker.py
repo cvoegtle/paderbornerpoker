@@ -119,8 +119,9 @@ class Table:
         return max_value > 0 and (max_value - min_value) > 2 and (max_value - min_value) / max_value >= 0.5
 
     def play_card(self, user, card):
-        self.played_cards[user.identifier] = card
-        self.mark_update()
+        if not self.card_value_visible:
+            self.played_cards[user.identifier] = card
+            self.mark_update()
 
     def card_played_by(self, user):
         return self.played_cards.get(user.identifier)
