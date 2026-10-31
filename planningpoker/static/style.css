@@ -49,8 +49,9 @@ body {
 
 .played_card {
     border: 3px solid darkblue;
-    padding-top: 1px;
-    width: 55px;
+    padding: 1px 4px 0 4px;
+    min-width: 55px;
+    box-sizing: border-box;
     text-align: center;
     height: 100%;
     border-radius: 15%;
@@ -81,6 +82,27 @@ body {
     margin-bottom: 5px;
     margin-top: 5px;
     width: 300px;
+}
+
+.custom_card_dialog {
+    border: 2px solid darkblue;
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.custom_card_dialog::backdrop {
+    background: rgba(0, 0, 0, 0.35);
+}
+
+.custom_card_input {
+    width: 180px;
+}
+
+.dialog_actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
 }
 
 .estimations_match {

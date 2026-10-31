@@ -16,7 +16,7 @@ class Card:
             self.text = str(value)
 
     def __eq__(self, other):
-        return isinstance(other, Card) and self.key == other.key
+        return isinstance(other, Card) and self.key == other.key and self.value == other.value
 
     def __str__(self):
         return f'<text: {self.text} / value: {self.value}>'

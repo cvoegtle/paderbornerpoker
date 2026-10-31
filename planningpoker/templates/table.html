@@ -43,6 +43,11 @@
              class="card"
              value="{{card.text}}" {% if table.card_value_visible %}disabled{% endif %}>
       {% endfor %}
+      <button type="button"
+              class="card"
+              onclick="openCustomCardDialog()"
+              title="Eigenen Kartenwert eingeben"
+              {% if table.card_value_visible %}disabled{% endif %}>✎</button>
     </div>
     {% endif %}
   </div>
@@ -56,5 +61,24 @@
     <input id="preview_my_card" name="preview_my_card" type="checkbox" class="action_button" {%if preview_my_card %}checked{% endif %} onchange="onTogglePreviewMyCard()">meine Karte vorab zeigen</input>
   </div>
 </form>
+
+<dialog id="custom_card_dialog" class="custom_card_dialog">
+  <form method="post" action="/card/custom">
+    <label for="custom_card_value" class="common_label">Eigener Kartenwert:</label>
+    <div class="input_line">
+      <input id="custom_card_value"
+             name="custom_card_value"
+             type="number"
+             step="any"
+             required
+             class="common_input custom_card_input"
+             oninput="updateCustomCardButtonStatus()"/>
+    </div>
+    <div class="dialog_actions">
+      <button id="play_custom_card_button" type="submit" class="action_button" disabled>legen</button>
+      <button type="button" class="action_button" onclick="closeCustomCardDialog()">abbrechen</button>
+    </div>
+  </form>
+</dialog>
 </body>
 </html>

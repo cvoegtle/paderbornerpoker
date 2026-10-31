@@ -4,9 +4,9 @@ import time
 from flask import Flask, request, render_template, make_response, redirect, Response, abort, send_from_directory
 
 from broadcaster import broadcaster
-from poker import standard_deck
+from poker import standard_deck, Card
 from persistence import retrieve_user, retrieve_table, create_user, create_table, update_table_add_user, update_table_clear, \
-    update_table_show_cards, update_table_play_card, retrieve_table_update, update_table_remove_user
+    update_table_show_cards, update_table_play_card, update_table_play_custom_card, retrieve_table_update, update_table_remove_user
 
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -127,6 +127,16 @@ def play_card(card_key):
     return response
 
 
+@app.route('/card/custom', methods=['POST'])
+def play_custom_card():
+    card = parse_custom_card(request.form.get('custom_card_value'))
+    user = load_user_mandatory(400)
+    table_id = extract_table_identifier_mandatory(400)
+    update_table_play_custom_card(table_id, user, card)
+    response = unique_redirect('/table')
+    return response
+
+
 def render_table(table, user):
     preview_my_card = extract_preview_my_card_enabled()
     show_disabled = (not table.all_cards_played() and not user.is_admin) or table.card_value_visible
@@ -201,6 +211,23 @@ def load_user_mandatory(response_code):
 def validate_card(card_key):
     if card_key not in standard_deck():
         abort(400)
+
+
+def parse_custom_card(raw_value):
+    if raw_value is None:
+        abort(400)
+    normalized = str(raw_value).strip().replace(',', '.')
+    if not normalized:
+        abort(400)
+    try:
+        numeric_value = float(normalized)
+    except (ValueError, TypeError):
+        abort(400)
+    if numeric_value != numeric_value or numeric_value in (float('inf'), float('-inf')):
+        abort(400)
+    if numeric_value.is_integer():
+        numeric_value = int(numeric_value)
+    return Card(-1, numeric_value)
 
 
 def extract_table_identifier():

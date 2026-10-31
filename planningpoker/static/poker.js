@@ -16,6 +16,33 @@ function updateJoinButtonStatus() {
   joinButton.disabled = disabled;
 }
 
+function openCustomCardDialog() {
+  let dialog = document.getElementById("custom_card_dialog");
+  let input = document.getElementById("custom_card_value");
+  if (dialog && input) {
+    input.value = "";
+    updateCustomCardButtonStatus();
+    dialog.showModal();
+    input.focus();
+  }
+}
+
+function closeCustomCardDialog() {
+  let dialog = document.getElementById("custom_card_dialog");
+  if (dialog && dialog.open) {
+    dialog.close();
+  }
+}
+
+function updateCustomCardButtonStatus() {
+  let input = document.getElementById("custom_card_value");
+  let button = document.getElementById("play_custom_card_button");
+  if (input && button) {
+    let val = input.value.trim();
+    button.disabled = val.length === 0 || isNaN(Number(val));
+  }
+}
+
 function onTogglePreviewMyCard() {
   document.cookie = `PREVIEW_MY_CARD=${isPreviewMyCardEnabled() ? "ON" : "OFF"}`;
   location.replace(uniqueUrl("/table"));
@@ -91,6 +118,10 @@ class TableObserver {
           let newHeading = doc.querySelector("h1");
           if (newHeading) {
             document.querySelector("h1").innerText = newHeading.innerText;
+          }
+          let firstCard = currentForm.querySelector(".card");
+          if (firstCard && firstCard.disabled) {
+            closeCustomCardDialog();
           }
           if (newUpdateId) {
             document.cookie = `TABLE_UPDATE=${newUpdateId}; path=/`;

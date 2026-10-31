@@ -112,6 +112,13 @@ def update_table_play_card(table_identifier, user, card_key):
         encode_and_store(entity, table)
 
 
+def update_table_play_custom_card(table_identifier, user, card):
+    with datastore_client.transaction():
+        entity, table = load_and_decode(table_identifier)
+        table.play_card(user, card)
+        encode_and_store(entity, table)
+
+
 def load_and_decode(table_identifier):
     entity = retrieve_entity(TABLE_POKER_TABLE, table_identifier)
     table = decode_table(entity)

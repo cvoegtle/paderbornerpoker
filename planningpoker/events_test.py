@@ -121,6 +121,36 @@ class ValidationTestCase(unittest.TestCase):
             self.assertIn('/table?unique=', response.headers.get('Location'))
             mock_update.assert_called_once_with(123, user, 3)
 
+    @patch('main.update_table_play_custom_card')
+    def test_play_custom_card_invalid_non_numeric_returns_400(self, mock_update):
+        self.client.set_cookie('POKER_TABLE', '123')
+        self.client.set_cookie('POKER_USER_ID', '456')
+        response = self.client.post('/card/custom', data={'custom_card_value': 'abc'})
+        self.assertEqual(400, response.status_code)
+        mock_update.assert_not_called()
+
+    @patch('main.update_table_play_custom_card')
+    def test_play_custom_card_valid_numeric_request(self, mock_update):
+        from poker import Card
+        self.client.set_cookie('POKER_TABLE', '123')
+        self.client.set_cookie('POKER_USER_ID', '456')
+        user = User("Test")
+        with patch('main.load_user', return_value=user):
+            response = self.client.post('/card/custom', data={'custom_card_value': '42'})
+            self.assertEqual(302, response.status_code)
+            mock_update.assert_called_once_with(123, user, Card(-1, 42))
+
+    @patch('main.update_table_play_custom_card')
+    def test_play_custom_card_valid_decimal_comma(self, mock_update):
+        from poker import Card
+        self.client.set_cookie('POKER_TABLE', '123')
+        self.client.set_cookie('POKER_USER_ID', '456')
+        user = User("Test")
+        with patch('main.load_user', return_value=user):
+            response = self.client.post('/card/custom', data={'custom_card_value': '7,5'})
+            self.assertEqual(302, response.status_code)
+            mock_update.assert_called_once_with(123, user, Card(-1, 7.5))
+
 
 if __name__ == '__main__':
     unittest.main()
